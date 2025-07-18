@@ -45,7 +45,7 @@ const sendDeclinedOrderEmailToCustomer = async ({
       <div style="font-family: Arial, sans-serif;">
         <h2>Ευχαριστούμε ${username} που προτιμήσατε το κατάστημα ${storeName} DECLINEEED!</h2>
         <p><strong>Κωδικός παραγγελίας:</strong> ${orderId}</p>
-        <p><strong>Εκτιμώμενος χρόνος παράδοσης:</strong> ${deliveryTime}</p>
+        <p><strong>Geia sas:</strong> ${deliveryTime}</p>
         
         <h3>🧾 Περιεχόμενο παραγγελίας</h3>
         <table style="border-collapse: collapse; width: 100%;">
