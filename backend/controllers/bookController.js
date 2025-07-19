@@ -111,16 +111,23 @@ export const updateBook = async (req, res) => {
 
 
 // 📖 Επιστροφή μόνο των βιβλίων του seller
+
 export const getMyBooks = async (req, res) => {
   try {
-   
-const books = await Book.find({ available: true }).populate('store', '_id storeName');
-res.json(books);
+    const store = await Store.findOne({ user: req.user._id });
 
+    if (!store) {
+      return res.status(404).json({ message: 'Δεν βρέθηκε κατάστημα για τον χρήστη.' });
+    }
+
+    const books = await Book.find({ store: store._id });
+    res.status(200).json(books);
   } catch (err) {
-    res.status(500).json({ message: '❌ Σφάλμα κατά την ανάκτηση βιβλίων' });
+    console.error('❌ Σφάλμα στο getMyBooks:', err);
+    res.status(500).json({ message: 'Σφάλμα κατά την ανάκτηση των βιβλίων.' });
   }
 };
+
 
 // 📚 Εμφάνιση όλων των διαθέσιμων βιβλίων για τους πελάτες
 export const getAvailableBooks = async (req, res) => {

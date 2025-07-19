@@ -9,6 +9,7 @@ const sendDeclinedOrderEmailToCustomer = async ({
   items,
   customerInfo,
   totalCost,
+
 }) => {
   try {
     if (!totalCost) {
@@ -42,39 +43,55 @@ const sendDeclinedOrderEmailToCustomer = async ({
     `).join('');
 
     const html = `
-      <div style="font-family: Arial, sans-serif;">
-        <h2>Ευχαριστούμε ${username} που προτιμήσατε το κατάστημα ${storeName} DECLINEEED!</h2>
-        <p><strong>Κωδικός παραγγελίας:</strong> ${orderId}</p>
-        <p><strong>Geia sas:</strong> ${deliveryTime}</p>
-        
-        <h3>🧾 Περιεχόμενο παραγγελίας</h3>
-        <table style="border-collapse: collapse; width: 100%;">
-          <thead>
-            <tr>
-              <th style="padding: 8px; border: 1px solid #ccc;">Προϊόν</th>
-              <th style="padding: 8px; border: 1px solid #ccc;">Ποσότητα</th>
-              <th style="padding: 8px; border: 1px solid #ccc;">Τιμή</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${itemsTable}
-          </tbody>
-        </table>
+  <div style="font-family: Arial, sans-serif; background-color: #f9f9f9; padding: 24px; color: #333;">
+  <div style="background-color: #fff; padding: 24px; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.05);">
 
-        <h3>🚚 Πληροφορίες Παράδοσης</h3>
-        <p><strong>Διεύθυνση:</strong> ${customerInfo.street}, ${customerInfo.region}, ${customerInfo.postalCode}</p>
-        <p><strong>Όροφος:</strong> ${customerInfo.floor} | <strong>Κουδούνι:</strong> ${customerInfo.doorbell}</p>
-        <p><strong>Κινητό Τηλέφωνο:</strong> ${customerInfo.phone}</p>
+    <h2 style="color: #d32f2f;">❌ Η παραγγελία σου απορρίφθηκε</h2>
+    <p style="font-size: 16px; margin-bottom: 8px;">
+      Αγαπητέ/ή <strong>${username}</strong>, η παραγγελία σου στο κατάστημα <strong>${storeName}</strong> δεν έγινε αποδεκτή.
+    </p>
+    <p style="font-size: 14px; margin-bottom: 24px;">📞 Μπορείς να επικοινωνήσεις απευθείας με το κατάστημα. Για περισσότερες πληροφορίες.</p>
 
-        <h3>💰 Συνολικό Κόστος: ${totalCost} €</h3>
+    <hr style="border: none; border-top: 1px solid #ddd; margin: 20px 0;">
 
-        <p>Θα ειδοποιηθείτε όταν ο διανομέας είναι καθ’ οδόν. Καλή σας όρεξη!</p>
-      </div>
+    <p><strong>🆔 Κωδικός Παραγγελίας:</strong> ${orderId}</p>
+
+    <h3 style="margin-top: 24px; color: #333;">🧾 Περιεχόμενο Παραγγελίας</h3>
+    <table style="width: 100%; border-collapse: collapse; font-size: 14px;">
+      <thead>
+        <tr style="background-color: #f0f0f0;">
+          <th style="padding: 8px; border: 1px solid #ccc;">Προϊόν</th>
+          <th style="padding: 8px; border: 1px solid #ccc;">Ποσότητα</th>
+          <th style="padding: 8px; border: 1px solid #ccc;">Τιμή</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${itemsTable}
+      </tbody>
+    </table>
+
+    <h3 style="margin-top: 24px;">🚚 Πληροφορίες Παράδοσης</h3>
+    <p><strong>Διεύθυνση:</strong> ${customerInfo.street}, ${customerInfo.region}, ${customerInfo.postalCode}</p>
+    <p><strong>Όροφος:</strong> ${customerInfo.floor} | <strong>Κουδούνι:</strong> ${customerInfo.doorbell}</p>
+    <p><strong>Κινητό Τηλέφωνο:</strong> ${customerInfo.phone}</p>
+
+    <h3 style="margin-top: 24px;">💰 Συνολικό Κόστος</h3>
+    <p style="font-size: 18px; font-weight: bold;">${totalCost} €</p>
+
+    <hr style="border: none; border-top: 1px solid #ddd; margin: 30px 0;">
+
+    <p style="font-size: 13px; color: #777;">
+      Ευχαριστούμε που χρησιμοποιείς την υπηρεσία μας.<br>
+      — Η ομάδα του B.D.App
+    </p>
+  </div>
+</div>
+
     `;
 
     // 👉 Αποστολή email
     await transporter.sendMail({
-      from: `"F.D.App" <${process.env.EMAIL_USERNAME}>`,
+      from: `"Book Delivery App" <${process.env.EMAIL_USERNAME}>`,
       to: customerEmail,
       subject: `Η παραγγελία σου επιβεβαιώθηκε από το κατάστημα ${storeName}`,
       html,
