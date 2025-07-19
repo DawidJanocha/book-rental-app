@@ -13,7 +13,7 @@ import UserProfile from './pages/UserProfile';
 import OrderHistory from './pages/OrderHistory'; 
 import { AuthProvider, AuthContext } from './context/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute'; 
-
+import StoreDetails from './pages/StoreDetails';
 
 function AppContent() {
   const { user } = useContext(AuthContext);
@@ -29,6 +29,7 @@ function AppContent() {
         <Route path="/verify/:token" element={<EmailVerification />} />
         <Route path="/store/create" element={<SellerStoreForm />} />
         <Route path="/storecreate" element={<StoreCreate />} />
+        <Route path="/store/:storeId" element={<StoreDetails />} />
         <Route
   path="/order-history"
   element={

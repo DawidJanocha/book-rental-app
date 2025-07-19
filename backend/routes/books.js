@@ -10,6 +10,7 @@ import {
   getAvailableBooks,
   rentBook,
   rentMultipleBooks,
+  getBooksByStore,
 } from '../controllers/bookController.js';
 
 import {
@@ -39,6 +40,10 @@ router.put('/rent/:bookId', protect, isCustomer, rentBook);
 
 // ✅ Ενοικίαση πολλών βιβλίων (μόνο για customer)
 router.put('/rent-multiple', protect, isCustomer, rentMultipleBooks);
+
+
+//Επιστροφή στοιχειων 
+router.get('/store/:storeId', getBooksByStore); // ✅
 
 /* 
 ===================================

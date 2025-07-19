@@ -110,6 +110,17 @@ export const updateBook = async (req, res) => {
 };
 
 
+export const getBooksByStore = async (req, res) => {
+  try {
+    const books = await Book.find({ store: req.params.storeId });
+    res.json(books);
+  } catch (err) {
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
+
+
 // 📖 Επιστροφή μόνο των βιβλίων του seller
 
 export const getMyBooks = async (req, res) => {

@@ -20,6 +20,20 @@ export const getMyStore = async (req, res) => {
   }
 };
 
+// 🎯 Επιστρεφει στοιχεια του καταστηματος στον πελατι 
+export const getStoreById = async (req, res) => {
+  try {
+    const store = await Store.findById(req.params.id).populate('user', 'username');
+    if (!store) {
+      return res.status(404).json({ message: 'Store not found' });
+    }
+    res.json(store);
+  } catch (error) {
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
+
 // 🎯 Δημιουργία καταστήματος από τον seller
 export const createStore = async (req, res) => {
   try {
