@@ -50,16 +50,17 @@ A full-stack web application for renting books online. Users can browse books fr
 ---
 
  Frontend Setup
-bash
+ 
+```bash
 Copy
 Edit
 cd frontend
 npm install
 npm start
-
+```
 ---
 
-✉️ Email Notifications
+✉ Email Notifications
 The app supports:
 
 Order confirmation emails to customers
@@ -98,5 +99,6 @@ cd backend
 npm install
 cp .env.example .env  # Fill in your MongoDB, Email credentials, JWT_SECRET
 npm run dev
+```
 
 
