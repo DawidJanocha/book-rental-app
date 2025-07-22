@@ -14,6 +14,8 @@ import OrderHistory from './pages/OrderHistory';
 import { AuthProvider, AuthContext } from './context/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute'; 
 import StoreDetails from './pages/StoreDetails';
+import ForbiddenPage from './pages/ForbiddenPage';
+import Footer from './components/Footer';
 
 function AppContent() {
   const { user } = useContext(AuthContext);
@@ -29,6 +31,7 @@ function AppContent() {
         <Route path="/verify/:token" element={<EmailVerification />} />
         <Route path="/store/create" element={<SellerStoreForm />} />
         <Route path="/storecreate" element={<StoreCreate />} />
+        <Route path="/forbidden" element={<ForbiddenPage />} />
         <Route path="/store/:storeId" element={<StoreDetails />} />
         <Route
   path="/order-history"
@@ -36,12 +39,15 @@ function AppContent() {
     <ProtectedRoute role="customer">
       <OrderHistory />
     </ProtectedRoute>
+    
   }
+  
 />
 
         <Route path="/books" element={ <ProtectedRoute> <CustomerPage /> </ProtectedRoute>} />
 
       </Routes>
+      <Footer />
     </>
   );
 }

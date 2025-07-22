@@ -29,6 +29,7 @@ export const CartProvider = ({ children }) => {
  const addToCart = (book) => {
   setCartItems((prevItems) => {
     const existingItem = prevItems.find((item) => item._id === book._id);
+    console.log('Προσθήκη προϊόντος:', book);
 
     const validStoreId =
       typeof book.storeId === 'string' && book.storeId.length === 24
@@ -48,15 +49,23 @@ export const CartProvider = ({ children }) => {
         ? parseFloat(book.rentalPrice.$numberDecimal || 0)
         : parseFloat(book.rentalPrice || 0);
 
+    const available = Number(book.quantity);
+
     if (existingItem) {
-      // ✅ Αν υπάρχει ήδη στο καλάθι, αύξησε ποσότητα
+      console.log('Διαθεσιμότητα:', available);
+      console.log('Υπάρχουσα ποσότητα:', existingItem.quantity);
+      // Allow adding until you reach the available quantity
+      if (existingItem.quantity >= available) {
+        alert(`Δεν μπορείς να προσθέσεις περισσότερα αντίτυπα από τα διαθέσιμα (${available}).`);
+        return prevItems;
+      }
       return prevItems.map((item) =>
         item._id === book._id
           ? { ...item, quantity: item.quantity + 1 }
           : item
       );
     } else {
-      // ✅ Αν είναι καινούριο, πρόσθεσέ το με storeId
+      // If new, add with quantity 1
       return [
         ...prevItems,
         {
@@ -83,15 +92,30 @@ export const CartProvider = ({ children }) => {
   };
 
   // 🔁 Ενημέρωση ποσότητας
-  const updateQuantity = (bookId, amount) => {
+  const updateQuantity = (bookId, amount, available) => {
     setCartItems((prevItems) =>
-      prevItems.map((item) =>
-        item._id === bookId
-          ? { ...item, quantity: Math.max(1, item.quantity + amount) }
-          : item
-      )
+      prevItems.map((item) => {
+        if (item._id === bookId) {
+          const newQuantity = Math.max(1, Math.min(item.quantity + amount, available));
+          if (newQuantity > available) {
+            alert(`Δεν μπορείς να προσθέσεις περισσότερα αντίτυπα από τα διαθέσιμα (${available}).`);
+          }
+          return { ...item, quantity: newQuantity };
+        }
+        return item;
+      })
     );
   };
+
+  const updateQuantityCart = (productId, delta) => {
+  setCartItems((prevItems) =>
+    prevItems.map((item) =>
+      item._id === productId
+        ? { ...item, quantity: Math.max(1, Number(item.quantity) + Number(delta)) }
+        : item
+    )
+  );
+};
 
   // 💰 Υπολογισμός συνολικού κόστους
   const getCartTotal = () => {
@@ -104,6 +128,7 @@ export const CartProvider = ({ children }) => {
     <CartContext.Provider
       value={{
         cartItems,
+        updateQuantityCart,
         addToCart,
         removeFromCart,
         clearCart,

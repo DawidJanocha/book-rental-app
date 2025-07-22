@@ -130,6 +130,14 @@ export const confirmOrderBySeller = async (req, res) => {
     if (order.store.user.toString() !== req.user._id.toString()) {
       return res.status(403).json({ message: 'Δεν έχεις πρόσβαση σε αυτή την παραγγελία' });
     }
+    for (const item of order.items) {
+      console.log("item.bookId", item.bookId)
+      await Book.findByIdAndUpdate(
+        item.bookId,
+        { $inc: { quantity: -item.quantity } },
+        { new: true }
+      );
+    }
 
     order.status = 'confirmed';
     order.estimatedTime = estimatedDeliveryTime;

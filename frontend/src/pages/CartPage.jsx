@@ -10,7 +10,7 @@ const CartPage = () => {
   const {
     cartItems,
     removeFromCart,
-    updateQuantity,
+    updateQuantityCart,
     clearCart,
     getCartTotal,
   } = useCart();
@@ -38,7 +38,7 @@ const CartPage = () => {
     if (newQuantity < 1) {
       removeFromCart(productId);
     } else {
-      updateQuantity(productId, delta);
+      updateQuantityCart(productId, delta);
     }
   };
 
@@ -118,13 +118,48 @@ const CartPage = () => {
                 💰 Τιμή:{' '}
                 {item.price !== undefined ? `${Number(item.rentalPrice).toFixed(2)} €` : 'Χωρίς τιμή'}
               </p>
-              <div className="quantity-control">
+              <div className="quantity-control" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <span>📦 Ποσότητα:</span>
-                <button onClick={() => handleQuantityChange(item._id, -1)}>
+                <button
+                  onClick={() => handleQuantityChange(item._id, -1)}
+                  style={{
+                    width: '32px',
+                    height: '32px',
+                    background: '#f3f4f6',
+                    color: '#111',
+                    border: 'none',
+                    borderRadius: '6px',
+                    fontSize: '18px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    cursor: 'pointer',
+                    transition: 'background 0.2s, color 0.2s',
+                  }}
+                >
                   <FaMinus />
                 </button>
-                <span>{item.quantity}</span>
-                <button onClick={() => handleQuantityChange(item._id, 1)}>
+                <span style={{ minWidth: '24px', textAlign: 'center', fontWeight: 'bold' }}>{item.quantity}</span>
+                <button
+                  onClick={() => handleQuantityChange(item._id, 1)}
+                  disabled={item.quantity >= (item.quantityAvailable ?? Infinity)}
+                  style={{
+                    width: '32px',
+                    height: '32px',
+                    background: item.quantity >= (item.quantityAvailable ?? Infinity) ? '#e5e7eb' : '#fbbf24',
+                    color: item.quantity >= (item.quantityAvailable ?? Infinity) ? '#9ca3af' : '#111',
+                    border: 'none',
+                    borderRadius: '6px',
+                    fontSize: '18px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    cursor: item.quantity >= (item.quantityAvailable ?? Infinity) ? 'not-allowed' : 'pointer',
+                    opacity: item.quantity >= (item.quantityAvailable ?? Infinity) ? 0.6 : 1,
+                    transition: 'background 0.2s, color 0.2s, opacity 0.2s',
+                  }}
+                  title={item.quantity >= (item.quantityAvailable ?? Infinity) ? 'Έφτασες το μέγιστο διαθέσιμο' : 'Αύξηση ποσότητας'}
+                >
                   <FaPlus />
                 </button>
               </div>

@@ -22,7 +22,11 @@ const SellerPage = () => {
   const [pendingOrders, setPendingOrders] = useState([]);
   const [acceptedOrders, setAcceptedOrders] = useState([]);
   const [declinedOrders, setDeclinedOrders] = useState([]);
-
+  const [filteredAcceptedOrders, setFilteredAcceptedOrders] = useState([]);
+  const [filteredDeclinedOrders, setFilteredDeclinedOrders] = useState([]);
+  const [fromDate, setFromDate] = useState('');
+  const [toDate, setToDate] = useState('');
+  
 // Δημιουργία επιλογών 15' - 3h
 const generateDeliveryOptions = () => {
   const options = [];
@@ -36,6 +40,39 @@ const generateDeliveryOptions = () => {
   }
   return options;
 };
+
+const handleFilter = () => {
+  if (!fromDate && !toDate) {
+    // Επιστροφή όλων των παραγγελιών
+    setFilteredAcceptedOrders(acceptedOrders);
+    setFilteredDeclinedOrders(declinedOrders);
+    return;
+  }
+
+  const from = fromDate ? new Date(fromDate) : null;
+  const to = toDate ? new Date(toDate) : null;
+  if (to) to.setHours(23, 59, 59, 999);
+
+  const isInRange = (orderDate) => {
+    const date = new Date(orderDate);
+
+    if (from && to) return date >= from && date <= to;
+    if (from && !to) return date >= from;
+    if (!from && to) return date <= to;
+    return true; // fallback – shouldn't happen
+  };
+
+  setFilteredAcceptedOrders(
+    acceptedOrders.filter((order) => isInRange(order.createdAt))
+  );
+  setFilteredDeclinedOrders(
+    declinedOrders.filter((order) => isInRange(order.createdAt))
+  );
+};
+
+useEffect(() => {
+  handleFilter();
+}, [acceptedOrders, declinedOrders, fromDate, toDate]);
 
 
   // Ανάκτηση βιβλίων (με useCallback για να μη δίνει warning το useEffect)
@@ -241,6 +278,7 @@ const handleAcceptOrder = async (orderId) => {
 
     alert('✅ Η παραγγελία επιβεβαιώθηκε');
     fetchOrders();
+    fetchMyBooks();
   } catch (err) {
     console.error('Σφάλμα επιβεβαίωσης παραγγελίας:', err);
     alert('❌ Σφάλμα στην αποδοχή παραγγελίας');
@@ -254,6 +292,7 @@ const handleDenyOrder = async (orderId) => {
     });
     alert('❌ Η παραγγελία απορρίφθηκε');
     fetchOrders();
+    fetchMyBooks();
   } catch (err) {
     alert('❌ Σφάλμα στην απόρριψη παραγγελίας');
   }
@@ -398,12 +437,37 @@ const calculateTotal = (order) => {
       {activeTab === 'myBooks' && (
         <ul className="space-y-4 max-w-lg">
           {books.map((book) => (
-            <li key={book._id} className="bg-gray-800 p-4 rounded">
+            <li
+              key={book._id}
+              className={
+                `p-4 rounded ` +
+                (Number(book.quantity) < 5
+                  ? "bg-red-900/60 border border-red-400 animate-pulse"
+                  : "bg-gray-800")
+              }
+            >
               <div className="bg-slate-800 text-white p-4 rounded mb-3 shadow flex justify-between items-start">
                 {/* Αριστερά: Τίτλος + συγγραφέας */}
                 <div>
                   <div className="font-semibold text-lg">{book.title}</div>
                   <div className="text-sm text-gray-300">από {book.author}</div>
+                  <div className="text-sm mt-1">
+                    <span className="font-semibold">Διαθέσιμα:</span>{" "}
+                    <span
+                      className={
+                        Number(book.quantity) < 5
+                          ? "text-red-400 font-bold"
+                          : "text-green-300 font-semibold"
+                      }
+                    >
+                      {book.quantity}
+                    </span>
+                    {Number(book.quantity) < 5 && (
+                      <span className="ml-2 text-red-400 font-semibold">
+                        ⚠️ Χαμηλό απόθεμα!
+                      </span>
+                    )}
+                  </div>
                 </div>
 
                 {/* Δεξιά: Τιμή + κουμπιά */}
@@ -574,93 +638,123 @@ const calculateTotal = (order) => {
     )}
   </div>
 )}{activeTab === 'history' && (
-<div className="mt-6">
-  <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
-    📜 Ιστορικό Παραγγελιών
-  </h2>
+  <div className="mt-6">
+    <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
+      📜 Ιστορικό Παραγγελιών
+    </h2>
 
-  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-    {/* Αποδεκτές Παραγγελίες */}
-    <div className="bg-green-900/20 border border-green-700 p-4 rounded-md shadow">
-      <h3 className="text-green-400 font-semibold mb-3">
-        ✅ Αποδεκτές Παραγγελίες ({acceptedOrders.length})
-      </h3>
+    <div className="mb-4 flex flex-col md:flex-row md:items-center gap-4">
+      <label className="text-white">
+        Από:
+        <input
+          type="date"
+          value={fromDate}
+          onChange={(e) => setFromDate(e.target.value)}
+          className="ml-2 p-1 rounded bg-slate-700 text-white border border-gray-600"
+        />
+      </label>
 
-      {acceptedOrders.map((order, index) => (
-        <div key={index} className="bg-slate-800 p-3 rounded-md mb-4 shadow-md">
-          <p className="text-sm text-white">
-            <strong>👤 Πελάτης:</strong> {order?.customer.username}
-          </p>
-          <p className="text-sm text-white">
-            <strong>📅 Ημερομηνία:</strong> {new Date(order.createdAt).toLocaleString('el-GR')}
-          </p>
-          <p className="text-sm text-white">
-            <strong>⏱ Εκτιμώμενος χρόνος:</strong>{' '}
-            {order.estimatedTime || '—'}
-          </p>
+      <label className="text-white">
+        Έως:
+        <input
+          type="date"
+          value={toDate}
+          onChange={(e) => setToDate(e.target.value)}
+          className="ml-2 p-1 rounded bg-slate-700 text-white border border-gray-600"
+        />
+      </label>
 
-          <div className="mt-2">
-            <p className="text-sm text-white font-semibold mb-1">📦 Προϊόντα:</p>
-            {order.items.map((prod, i) => (
-              <div
-                key={i}
-                className="bg-slate-700 px-3 py-2 mb-1 rounded flex justify-between items-center text-sm text-white"
-              >
-                <span className="flex-1">{prod.title || "Άγνωστο Βιβλίο"}</span>
-                <span className="w-10 text-center text-gray-300">×{prod.quantity}</span>
-                <span className="w-14 text-right text-yellow-400 font-semibold">
-                  {prod.price.toFixed(2)} €
-                </span>
-              </div>
-            ))}
-          </div>
-
-          <p className="mt-2 text-right font-bold text-green-300">
-            Σύνολο:  {calculateTotal(order)} €
-          </p>
-        </div>
-      ))}
+      <button
+        onClick={handleFilter}
+        className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 rounded shadow"
+      >
+        📅 Φιλτράρισμα
+      </button>
     </div>
 
-    {/* Απορριφθείσες Παραγγελίες */}
-    <div className="bg-red-900/20 border border-red-700 p-4 rounded-md shadow">
-      <h3 className="text-red-400 font-semibold mb-3">
-        ❌ Απορριφθείσες Παραγγελίες ({declinedOrders.length})
-      </h3>
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      {/* Αποδεκτές Παραγγελίες */}
+      <div className="bg-green-900/20 border border-green-700 p-4 rounded-md shadow">
+        <h3 className="text-green-400 font-semibold mb-3">
+          ✅ Αποδεκτές Παραγγελίες ({filteredAcceptedOrders.length})
+        </h3>
 
-      {declinedOrders.map((order, index) => (
-        <div key={index} className="bg-slate-800 p-3 rounded-md mb-4 shadow-md">
-          <p className="text-sm text-white">
-            <strong>👤 Πελάτης:</strong> {order.customer.username}
-          </p>
-          <p className="text-sm text-white">
-            <strong>📅 Ημερομηνία:</strong> {new Date(order.createdAt).toLocaleString('el-GR')}
-          </p>
-          <div className="mt-2">
-            <p className="text-sm text-white font-semibold mb-1">📦 Προϊόντα:</p>
-            {order.items.map((prod, i) => (
-              <div
-                key={i}
-                className="bg-slate-700 px-3 py-2 mb-1 rounded flex justify-between items-center text-sm text-white"
-              >
-                <span className="flex-1">{prod.title || "Άγνωστο Βιβλίο"}</span>
-                <span className="w-10 text-center text-gray-300">×{prod.quantity}</span>
-                <span className="w-14 text-right text-yellow-400 font-semibold">
-                  {(prod.price * prod.quantity).toFixed(2)} €
-                </span>
-              </div>
-            ))}
+        {filteredAcceptedOrders.map((order, index) => (
+          <div key={index} className="bg-slate-800 p-3 rounded-md mb-4 shadow-md">
+            <p className="text-sm text-white">
+              <strong>👤 Πελάτης:</strong> {order?.customer.username}
+            </p>
+            <p className="text-sm text-white">
+              <strong>📅 Ημερομηνία:</strong>{' '}
+              {new Date(order.createdAt).toLocaleString('el-GR')}
+            </p>
+            <p className="text-sm text-white">
+              <strong>⏱ Εκτιμώμενος χρόνος:</strong> {order.estimatedTime || '—'}
+            </p>
+
+            <div className="mt-2">
+              <p className="text-sm text-white font-semibold mb-1">📦 Προϊόντα:</p>
+              {order.items.map((prod, i) => (
+                <div
+                  key={i}
+                  className="bg-slate-700 px-3 py-2 mb-1 rounded flex justify-between items-center text-sm text-white"
+                >
+                  <span className="flex-1">{prod.title || 'Άγνωστο Βιβλίο'}</span>
+                  <span className="w-10 text-center text-gray-300">×{prod.quantity}</span>
+                  <span className="w-14 text-right text-yellow-400 font-semibold">
+                    {prod.price.toFixed(2)} €
+                  </span>
+                </div>
+              ))}
+            </div>
+
+            <p className="mt-2 text-right font-bold text-green-300">
+              Σύνολο: {calculateTotal(order)} €
+            </p>
           </div>
+        ))}
+      </div>
 
-          <p className="mt-2 text-right font-bold text-red-300">
-            Σύνολο: {calculateTotal(order)} €
-          </p>
-        </div>
-      ))}
+      {/* Απορριφθείσες Παραγγελίες */}
+      <div className="bg-red-900/20 border border-red-700 p-4 rounded-md shadow">
+        <h3 className="text-red-400 font-semibold mb-3">
+          ❌ Απορριφθείσες Παραγγελίες ({filteredDeclinedOrders.length})
+        </h3>
+
+        {filteredDeclinedOrders.map((order, index) => (
+          <div key={index} className="bg-slate-800 p-3 rounded-md mb-4 shadow-md">
+            <p className="text-sm text-white">
+              <strong>👤 Πελάτης:</strong> {order.customer.username}
+            </p>
+            <p className="text-sm text-white">
+              <strong>📅 Ημερομηνία:</strong>{' '}
+              {new Date(order.createdAt).toLocaleString('el-GR')}
+            </p>
+
+            <div className="mt-2">
+              <p className="text-sm text-white font-semibold mb-1">📦 Προϊόντα:</p>
+              {order.items.map((prod, i) => (
+                <div
+                  key={i}
+                  className="bg-slate-700 px-3 py-2 mb-1 rounded flex justify-between items-center text-sm text-white"
+                >
+                  <span className="flex-1">{prod.title || 'Άγνωστο Βιβλίο'}</span>
+                  <span className="w-10 text-center text-gray-300">×{prod.quantity}</span>
+                  <span className="w-14 text-right text-yellow-400 font-semibold">
+                    {(prod.price * prod.quantity).toFixed(2)} €
+                  </span>
+                </div>
+              ))}
+            </div>
+
+            <p className="mt-2 text-right font-bold text-red-300">
+              Σύνολο: {calculateTotal(order)} €
+            </p>
+          </div>
+        ))}
+      </div>
     </div>
   </div>
-</div>
-
 )}
 
       

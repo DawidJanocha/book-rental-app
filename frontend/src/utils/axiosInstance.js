@@ -28,6 +28,9 @@ instance.interceptors.response.use(
       // π.χ. redirect ή εμφάνιση modal login
       window.location.href = '/';
     }
+    if (error.response && error.response.status === 403) {
+      window.location.href = '/forbidden';
+    }
     return Promise.reject(error);
   }
 );

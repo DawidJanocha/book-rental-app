@@ -10,7 +10,7 @@ const CustomerPage = () => {
   const [selectedStore, setSelectedStore] = useState(''); // Επιλεγμένο κατάστημα
   const [searchTerm, setSearchTerm] = useState(''); // Όρος αναζήτησης τίτλου
 
-  const { addToCart } = useCart(); // Access στο καλάθι
+  const { addToCart , cartItems} = useCart(); // Access στο καλάθι
   const isLoggedIn = !!localStorage.getItem('token'); // Έλεγχος σύνδεσης
 
   // 🔹 Φόρτωση όλων των διαθέσιμων βιβλίων
@@ -45,6 +45,7 @@ const CustomerPage = () => {
         book.title.toLowerCase().includes(searchTerm.toLowerCase())
       );
     }
+    results = results.filter((book) => Number(book.quantity) > 0);
 
     setFilteredBooks(results);
   }, [books, selectedStore, searchTerm]);
@@ -54,16 +55,20 @@ const CustomerPage = () => {
     const storeId =
       typeof book.store === 'string' ? book.store : book.store?._id;
 
-    if (!storeId) {
-      alert(`Το βιβλίο "${book.title}" δεν μπορεί να προστεθεί (λείπει το κατάστημα).`);
-      return;
+    const cartItem = cartItems.find((item) => item._id === book._id);
+    const alreadyInCart = cartItem ? cartItem.quantity : 0;
+    console.log('Already in cart:', alreadyInCart, 'Available:', book.quantity);
+
+    if (alreadyInCart >= Number(book.quantity)) {
+    alert(`Δεν μπορείς να προσθέσεις περισσότερα αντίτυπα από τα διαθέσιμα (${book.quantity}) για το "${book.title}".`);
+    return;
     }
 
     addToCart({
       ...book,
       storeId,
       price: book.rentalPrice || 0,
-      quantity: 1,
+      quantityAvailable: book.quantity,
     });
   };
 
@@ -113,7 +118,10 @@ const CustomerPage = () => {
           {filteredBooks.map((book) => {
             const storeId = book.store?._id || book.store;
             const storeName = book.store?.storeName || 'Άγνωστο κατάστημα';
-
+            const cartItem = cartItems.find((item) => item._id === book._id);
+            const alreadyInCart = cartItem ? cartItem.quantity : 0;
+            const remaining = Math.max(0, Number(book.quantity) - alreadyInCart);
+            const isMax = alreadyInCart >= Number(book.quantity);
             return (
               <div
                 key={book._id}
@@ -145,19 +153,26 @@ const CustomerPage = () => {
                     Τιμή Ενοικίασης:{' '}
                     {Number(book.rentalPrice?.$numberDecimal || book.rentalPrice || 0).toFixed(2)} €
                   </p>
+                  <p className="text-center text-sm text-gray-600 mb-2">
+                    Διαθέσιμα: <span className={Number(book.quantity) < 5 ? "text-red-500 font-bold" : "text-green-700 font-semibold"}>{remaining}</span>
+                  </p>
                 </div>
 
                 {/* 🔹 Κουμπί ενοικίασης */}
                 <button
                   onClick={() => handleRent(book)}
-                  disabled={!isLoggedIn}
+                  disabled={!isLoggedIn || isMax}
                   className={`mt-4 w-full font-semibold py-2 px-4 rounded transition duration-200 ${
-                    isLoggedIn
-                      ? 'bg-yellow-400 hover:bg-yellow-300 text-black'
-                      : 'bg-gray-300 text-gray-600 cursor-not-allowed'
+                    !isLoggedIn || isMax
+                      ? 'bg-gray-300 text-gray-600 cursor-not-allowed'
+                      : 'bg-yellow-400 hover:bg-yellow-300 text-black'
                   }`}
                 >
-                  {isLoggedIn ? '🛒 Ενοικίαση' : '🔒 Απαιτείται Σύνδεση'}
+                  {!isLoggedIn
+                    ? '🔒 Απαιτείται Σύνδεση'
+                    : isMax
+                    ? '⚠️ Μέγιστη ποσότητα στο καλάθι'
+                    : '🛒 Ενοικίαση'}
                 </button>
               </div>
             );
