@@ -1,74 +1,101 @@
 import Order from '../models/Order.js';
 import Store from '../models/Store.js';
 import UserDetails from '../models/UserDetails.js';
-import User from '../models/User.js'
+import User from '../models/User.js';
+import Book from '../models/Book.js';
 import sendOrderEmailToSeller from '../utils/sendOrderEmailToSeller.js';
 import sendOrderEmailToCustomer from '../utils/sendOrderEmailToCustomer.js';
 
-// ✅ Δημιουργία παραγγελίας
+
+// ✅ Δημιουργία παραγγελίας για πολλαπλά καταστήματα
 export const completeOrder = async (req, res) => {
   try {
     const {
       items,
       totalCost,
-      storeId,
       customerComment,
     } = req.body;
 
-    if (!items || !storeId) {
+    if (!items || !Array.isArray(items) || items.length === 0) {
       return res.status(400).json({ message: 'Λείπουν στοιχεία παραγγελίας' });
     }
+
     const user = await User.findById(req.user._id);
-    console.log("User", user)
-
     const customer = await UserDetails.findOne({ user: req.user._id });
-    const store = await Store.findById(storeId);
 
-    if (!store) {
-      return res.status(404).json({ message: 'Το κατάστημα δεν βρέθηκε' });
+    // 1. Group items by store
+    console.log("items", items);
+    const itemsByStore = {};
+
+for (const item of items) {
+  // Fetch the book to get its store
+  const book = await Book.findById(item.bookId).select('store');
+  if (!book || !book.store) {
+    throw new Error('Το προϊόν δεν έχει κατάστημα');
+  }
+  const storeId = book.store.toString();
+  if (!itemsByStore[storeId]) itemsByStore[storeId] = [];
+  // Attach storeId to item for later use if needed
+  itemsByStore[storeId].push({ ...item, store: storeId });
+}
+
+    const orderResults = [];
+
+    // 2. For each store, create order and send email
+    for (const storeId of Object.keys(itemsByStore)) {
+      const store = await Store.findById(storeId);
+      if (!store) continue;
+
+      const storeItems = itemsByStore[storeId];
+      const storeTotal = storeItems.reduce((sum, i) => sum + (Number(i.price) * i.quantity), 0);
+
+      const newOrder = new Order({
+        customer: req.user._id,
+        store: storeId,
+        items: storeItems.map(i => ({
+          bookId: i.bookId,
+          quantity: i.quantity,
+          price: Number(i.price),
+          title: i.title,
+        })),
+        totalPrice: storeTotal,
+        comments: customerComment || '',
+        status: 'pending',
+      });
+
+      await newOrder.save();
+
+      const orderDate = new Date(newOrder.createdAt).toLocaleString('el-GR', {
+        dateStyle: 'short',
+        timeStyle: 'short',
+      });
+
+      const objToSendOrderToSeller = {
+        sellerEmail: store.email,
+        storeName: store.storeName,
+        orderId: newOrder._id,
+        createdAt: orderDate,
+        items: storeItems,
+        totalCost: storeTotal,
+        customerInfo: {
+          username: `${customer.firstName} ${customer.lastName}`,
+          mobile: customer.phone,
+          region: customer.region,
+          postalCode: customer.postalCode,
+          address: customer.street,
+          floor: customer.floor,
+          doorbell: customer.doorbell,
+          comment: customerComment || '',
+        },
+      };
+
+      // ✅ Στέλνουμε email στον SELLER
+      await sendOrderEmailToSeller(objToSendOrderToSeller);
+
+      orderResults.push({ orderId: newOrder._id, store: store.storeName });
     }
 
-    const newOrder = new Order({
-      customer: req.user._id,
-      store: storeId,
-      items,
-      totalPrice:totalCost,
-      customerComment,
-      status: 'pending',
-    });
-
-    await newOrder.save();
-
-    const orderDate = new Date(newOrder.createdAt).toLocaleString('el-GR', {
-      dateStyle: 'short',
-      timeStyle: 'short',
-    });
-    console.log("Store", store.storeName)
-    console.log("Id", req.user._id)
-    console.log("Customer", customer)
-    const objToSendOrderToSeller={
-      sellerEmail: store.email,
-      storeName: store.storeName,
-      orderId: newOrder._id,
-      createdAt: orderDate,
-      items,
-      totalCost,
-      customerInfo: {
-        username: `${customer.firstName} ${customer.lastName}`,
-        mobile: customer.phone,
-        region: customer.region,
-        postalCode: customer.postalCode,
-        address: customer.street,
-        floor: customer.floor,
-        doorbell: customer.doorbell,
-        comment: customerComment || '',
-      },
-    }
-    console.log("Object",objToSendOrderToSeller)
-    // ✅ Στέλνουμε email στον SELLER
-    await sendOrderEmailToSeller(objToSendOrderToSeller);
-
-    res.status(201).json({ message: 'Η παραγγελία καταχωρήθηκε επιτυχώς' });
+    res.status(201).json({ message: 'Οι παραγγελίες καταχωρήθηκαν', orders: orderResults });
   } catch (err) {
     console.error('Σφάλμα κατά την ολοκλήρωση παραγγελίας:', err);
     res.status(500).json({ message: 'Αποτυχία παραγγελίας' });

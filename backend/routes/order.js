@@ -20,31 +20,59 @@ router.post('/complete', protect, isCustomer ,completeOrder, async (req, res) =>
     const { items, totalPrice, storeId, customerNote } = req.body;
     const customerId = req.user._id;
 
-    const store = await Store.findById(storeId);
-    if (!store) return res.status(404).json({ message: 'Κατάστημα δεν βρέθηκε' });
+    // 1. Group items by store
+    console.log("items", items);
+    const itemsByStore = {};
+    items.forEach(item => {
+      // item.bookId must be present and item.store must be present
+      console.log("item.bookId", item.bookId);
+      if (!itemsByStore[item.bookId.store._id]) itemsByStore[item.bookId.store._id] = [];
+      itemsByStore[item.store].push(item);
+    });
+    console.log("itemsByStore", itemsByStore);
 
-    const partnerUser = await User.findById(store.user);
-    if (!partnerUser) return res.status(404).json({ message: 'Συνεργάτης δεν βρέθηκε' });
+    const orderResults = [];
+
+    // 2. For each store, create order and send email
+    for (const storeId of Object.keys(itemsByStore)) {
+      const store = await Store.findById(storeId);
+      if (!store) continue;
+
+      const sellerUser = await User.findById(store.user);
+      if (!sellerUser) continue;
+
+      const storeItems = itemsByStore[storeId];
+
+      // Calculate total for this store's items
+      const storeTotal = storeItems.reduce((sum, i) => sum + (Number(i.price) * i.quantity), 0);
 
     const newOrder = await Order.create({
-      customer: customerId,
-      store: storeId,
-      items,
-      totalPrice: totalPrice,
-      customerNote,
-    });
+        customer: customerId,
+        store: storeId,
+        items: storeItems.map(i => ({
+          bookId: i.bookId,
+          quantity: i.quantity,
+          price: Number(i.price),
+          title: i.title,
+        })),
+        totalPrice: storeTotal,
+        comments: customerNote || '',
+      });
 
-    await sendOrderEmailToSeller(partnerUser.email, {
-      storeName: store.storeName,
-      items,
-      totalPrice,
-      customerInfo: req.user,
-      orderId: newOrder._id,
-      createdAt: newOrder.createdAt,
-      note: customerNote || '',
-    });
+      await sendOrderEmailToSeller(partnerUser.email, {
+        storeName: store.storeName,
+        items: storeItems,
+        totalPrice: storeTotal,
+        customerInfo: req.user,
+        orderId: newOrder._id,
+        createdAt: newOrder.createdAt,
+        note: customerNote || '',
+      });
 
-    res.status(201).json({ message: 'Η παραγγελία καταχωρήθηκε', orderId: newOrder._id });
+      orderResults.push({ orderId: newOrder._id, store: store.storeName });
+    }
+
+    res.status(201).json({ message: 'Οι παραγγελίες καταχωρήθηκαν', orders: orderResults });
   } catch (err) {
     console.error('Σφάλμα κατά τη δημιουργία παραγγελίας:', err);
     res.status(500).json({ message: 'Σφάλμα κατά την καταχώρηση παραγγελίας' });
