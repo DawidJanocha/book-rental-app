@@ -47,3 +47,4 @@ export const sendEmail = async (options) => {
     throw new Error('Αποτυχία αποστολής email');
   }
 };
+export default sendEmail;

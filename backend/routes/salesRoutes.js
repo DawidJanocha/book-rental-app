@@ -1,11 +1,12 @@
 // src/routes/salesRoutes.js
 import express from 'express';
-import { getSalesStats } from '../controllers/salesController.js';  // Σωστή εισαγωγή του controller
-import authMiddleware from '../middleware/authMiddleware.js';  // Εισαγωγή του middleware για την αυθεντικοποίηση
+import { getSalesStats } from '../controllers/salesController.js';
+import authMiddleware from '../middleware/authMiddleware.js';
+import { attachStoreToRequest } from '../middleware/storeMiddleware.js'; // ΝΕΟ
 
 const router = express.Router();
 
-// Ορισμός του route για τα στατιστικά πωλήσεων
-router.get('/stats', authMiddleware.protect, getSalesStats);
+// Χρήση του middleware για να περάσουμε το store στον controller
+router.get('/stats', authMiddleware.protect, attachStoreToRequest, getSalesStats);
 
 export default router;

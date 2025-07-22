@@ -1,23 +1,43 @@
-// src/controllers/salesController.js
-import Order from '../models/Order.js';  // Μοντέλο Order
+// controllers/salesController.js
+import mongoose from 'mongoose';
+import Order from '../models/Order.js';
+import Store from '../models/Store.js'; // ✅ import για εύρεση store
 
+// 📈 GET /api/sales/stats - Στατιστικά πωλήσεων seller
 export const getSalesStats = async (req, res) => {
   try {
-    const storeId = req.user.storeId;  // Παίρνουμε το storeId από το token
+    const sellerId = req.user._id;
+
+    // 🔍 Εύρεση του store που ανήκει στον seller
+    const store = await Store.findOne({ user: sellerId });
+    if (!store) {
+      console.log('❌ Δεν βρέθηκε κατάστημα για τον χρήστη');
+      return res.status(400).json({ message: 'Δεν βρέθηκε κατάστημα για τον χρήστη' });
+    }
+
+    const objectStoreId = new mongoose.Types.ObjectId(store._id);
+    console.log('📦 Αναζήτηση πωλήσεων για storeId:', objectStoreId);
+
     const stats = await Order.aggregate([
-      { $match: { 'items.storeId': storeId } },  // Φιλτράρισμα μόνο για τα προϊόντα του συγκεκριμένου καταστήματος
+      { $unwind: '$items' },
+      { $match: { 'items.storeId': objectStoreId } },
       {
         $group: {
           _id: null,
-          totalSales: { $sum: '$totalAmount' },  // Υπολογισμός του συνολικού ποσού πωλήσεων
-          totalOrders: { $sum: 1 },  // Υπολογισμός του συνολικού αριθμού παραγγελιών
-        }
-      }
+          totalSales: { $sum: '$items.totalPrice' },
+          totalOrders: { $sum: 1 },
+        },
+      },
     ]);
 
-    res.status(200).json(stats[0] || { totalSales: 0, totalOrders: 0 });
+    console.log('📊 Αποτελέσματα aggregation:', stats);
+
+    const totalSales = stats[0]?.totalSales || 0;
+    const totalOrders = stats[0]?.totalOrders || 0;
+
+    res.json({ totalSales, totalOrders });
   } catch (err) {
-    console.error('Σφάλμα κατά την ανάκτηση των στατιστικών πωλήσεων:', err);
-    res.status(500).json({ message: 'Σφάλμα κατά την ανάκτηση των στατιστικών πωλήσεων' });
+    console.error('❌ Σφάλμα στα στατιστικά πωλήσεων:', err.message);
+    res.status(500).json({ message: 'Σφάλμα στα στατιστικά πωλήσεων' });
   }
 };

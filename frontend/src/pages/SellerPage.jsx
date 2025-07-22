@@ -279,7 +279,7 @@ const calculateTotal = (order) => {
         <button className={`${activeTab === 'storeInfo' ? 'text-blue-400' : 'text-white'} font-semibold`} onClick={() => setActiveTab('storeInfo')}>🏪 Κατάστημα</button>
         <button className={`${activeTab === 'addBook' ? 'text-blue-400' : 'text-white'} font-semibold`} onClick={() => setActiveTab('addBook')}>➕ Προσθήκη Βιβλίου</button>
         <button className={`${activeTab === 'myBooks' ? 'text-blue-400' : 'text-white'} font-semibold`} onClick={() => setActiveTab('myBooks')}>📚 Τα Βιβλία μου</button>
-        <button className={`${activeTab === 'salesStats' ? 'text-blue-400' : 'text-white'} font-semibold`} onClick={() => setActiveTab('salesStats')}>📊 Στατιστικά πωλήσεων</button>
+        {/* <button className={`${activeTab === 'salesStats' ? 'text-blue-400' : 'text-white'} font-semibold`} onClick={() => setActiveTab('salesStats')}>📊 Στατιστικά πωλήσεων</button> */}
         <button className={`${activeTab === 'pendingOrders' ? 'text-blue-400' : 'text-white'} font-semibold`} onClick={() => setActiveTab('pendingOrders')}>📦 Παραγγελίες ({pendingOrders?.length || 0})</button>
         <button className={`${activeTab === 'history' ? 'text-blue-400' : 'text-white'} font-semibold`} onClick={() => setActiveTab('history')}>📜 Ιστορικό</button>
       </div>

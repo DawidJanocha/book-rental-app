@@ -1,6 +1,7 @@
 // middleware/authMiddleware.js
 import jwt from 'jsonwebtoken';
 import User from '../models/User.js';
+import Store from '../models/Store.js';
 
 // 🔐 Επαλήθευση token & αποθήκευση user στο req.user
 export const protect = async (req, res, next) => {
@@ -12,11 +13,26 @@ export const protect = async (req, res, next) => {
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-    // ✅ Αποθήκευση ρόλου & ID απευθείας από το token
+    const user = await User.findById(decoded.id || decoded.userId);
+    if (!user) {
+      return res.status(401).json({ message: '❌ Ο χρήστης δεν βρέθηκε' });
+    }
+
     req.user = {
-      _id: decoded.id || decoded.userId,
-      role: decoded.role,
+      _id: user._id,
+      role: user.role,
     };
+
+    // ➕ Αν είναι seller, φέρε το storeId
+    if (user.role === 'seller') {
+      const store = await Store.findOne({ user: user._id }).select('_id');
+      if (store) {
+        req.user.storeId = store._id;
+        console.log('📦 Middleware: Store ID του seller:', store._id.toString());
+      } else {
+        console.warn('⚠️ Ο χρήστης είναι seller αλλά δεν έχει κατάστημα');
+      }
+    }
 
     next();
   } catch (err) {
@@ -42,3 +58,4 @@ export const isCustomer = (req, res, next) => {
 };
 
 export default { protect, isSeller, isCustomer };
+

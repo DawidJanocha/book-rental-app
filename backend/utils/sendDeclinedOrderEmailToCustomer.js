@@ -43,26 +43,31 @@ const sendDeclinedOrderEmailToCustomer = async ({
     `).join('');
 
     const html = `
-  <div style="font-family: Arial, sans-serif; background-color: #f9f9f9; padding: 24px; color: #333;">
-  <div style="background-color: #fff; padding: 24px; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.05);">
+  <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f6f8; padding: 30px; color: #333;">
+  <div style="max-width: 700px; margin: auto; background-color: #fff; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); padding: 32px;">
 
-    <h2 style="color: #d32f2f;">❌ Η παραγγελία σου απορρίφθηκε</h2>
-    <p style="font-size: 16px; margin-bottom: 8px;">
-      Αγαπητέ/ή <strong>${username}</strong>, η παραγγελία σου στο κατάστημα <strong>${storeName}</strong> δεν έγινε αποδεκτή.
+    <!-- Επικεφαλίδα -->
+    <h2 style="color: #c62828; font-size: 26px; margin-bottom: 8px;">📕 Η παραγγελία σου δεν έγινε αποδεκτή</h2>
+    <p style="font-size: 16px; line-height: 1.6;">
+      Αγαπητέ/ή <strong>${username}</strong>, η παραγγελία σου από το κατάστημα <strong>${storeName}</strong> δεν έγινε δεκτή.
     </p>
-    <p style="font-size: 14px; margin-bottom: 24px;">📞 Μπορείς να επικοινωνήσεις απευθείας με το κατάστημα. Για περισσότερες πληροφορίες.</p>
+    <p style="font-size: 15px; color: #555;">
+      📞 Μπορείς να επικοινωνήσεις απευθείας με το κατάστημα για περισσότερες λεπτομέρειες ή να επιλέξεις άλλο κατάστημα.
+    </p>
 
-    <hr style="border: none; border-top: 1px solid #ddd; margin: 20px 0;">
+    <hr style="border: none; border-top: 1px solid #e0e0e0; margin: 24px 0;">
 
-    <p><strong>🆔 Κωδικός Παραγγελίας:</strong> ${orderId}</p>
+    <!-- Κωδικός παραγγελίας -->
+    <p style="font-size: 15px;"><strong>🆔 Κωδικός Παραγγελίας:</strong> ${orderId}</p>
 
-    <h3 style="margin-top: 24px; color: #333;">🧾 Περιεχόμενο Παραγγελίας</h3>
-    <table style="width: 100%; border-collapse: collapse; font-size: 14px;">
+    <!-- Πίνακας προϊόντων -->
+    <h3 style="margin-top: 30px; font-size: 20px; color: #333;">📚 Περιεχόμενο Παραγγελίας</h3>
+    <table style="width: 100%; border-collapse: collapse; margin-top: 10px;">
       <thead>
-        <tr style="background-color: #f0f0f0;">
-          <th style="padding: 8px; border: 1px solid #ccc;">Προϊόν</th>
-          <th style="padding: 8px; border: 1px solid #ccc;">Ποσότητα</th>
-          <th style="padding: 8px; border: 1px solid #ccc;">Τιμή</th>
+        <tr style="background-color: #f1f1f1;">
+          <th style="padding: 10px; border: 1px solid #ddd;">📖 Βιβλίο</th>
+          <th style="padding: 10px; border: 1px solid #ddd;">📦 Ποσότητα</th>
+          <th style="padding: 10px; border: 1px solid #ddd;">💶 Τιμή</th>
         </tr>
       </thead>
       <tbody>
@@ -70,19 +75,22 @@ const sendDeclinedOrderEmailToCustomer = async ({
       </tbody>
     </table>
 
-    <h3 style="margin-top: 24px;">🚚 Πληροφορίες Παράδοσης</h3>
+    <!-- Στοιχεία Πελάτη -->
+    <h3 style="margin-top: 30px; font-size: 20px;">🚚 Στοιχεία Παράδοσης</h3>
     <p><strong>Διεύθυνση:</strong> ${customerInfo.street}, ${customerInfo.region}, ${customerInfo.postalCode}</p>
     <p><strong>Όροφος:</strong> ${customerInfo.floor} | <strong>Κουδούνι:</strong> ${customerInfo.doorbell}</p>
     <p><strong>Κινητό Τηλέφωνο:</strong> ${customerInfo.phone}</p>
 
-    <h3 style="margin-top: 24px;">💰 Συνολικό Κόστος</h3>
-    <p style="font-size: 18px; font-weight: bold;">${totalCost} €</p>
+    <!-- Κόστος -->
+    <h3 style="margin-top: 30px;">💰 Συνολικό Κόστος</h3>
+    <p style="font-size: 20px; font-weight: bold; color: #388e3c;">${totalCost} €</p>
 
-    <hr style="border: none; border-top: 1px solid #ddd; margin: 30px 0;">
+    <hr style="border: none; border-top: 1px solid #e0e0e0; margin: 30px 0;">
 
-    <p style="font-size: 13px; color: #777;">
-      Ευχαριστούμε που χρησιμοποιείς την υπηρεσία μας.<br>
-      — Η ομάδα του B.D.App
+    <!-- Υπογραφή -->
+    <p style="font-size: 13px; color: #777; text-align: center;">
+      📦 Ευχαριστούμε που χρησιμοποιείς το <strong>Book Delivery App</strong><br>
+      — Η ομάδα της B.D.App
     </p>
   </div>
 </div>

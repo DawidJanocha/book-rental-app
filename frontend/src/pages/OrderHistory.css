@@ -14,6 +14,26 @@
   color: #333;
 }
 
+.date-filters {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1rem;
+  align-items: center;
+}
+
+.date-filters label {
+  display: flex;
+  flex-direction: column;
+  font-weight: bold;
+}
+
+.date-filters button {
+  padding: 0.4rem 1rem;
+  cursor: pointer;
+}
+
+
+
 .order-card {
   background-color: #ffffff;
   border: 1px solid #f0c36d;

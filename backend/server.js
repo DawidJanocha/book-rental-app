@@ -28,7 +28,7 @@ app.use('/api/stores', storeRoutes);
 app.use('/api/partner-products', bulkImportRoutes);
 app.use('/api/order', orderRoutes);
 app.use('/api/user', userRoutes); // ✅ FIXED ESM import
-
+app.use('/api/sales', salesRoutes);
 // Connect DB & Start Server
 mongoose.connect(process.env.MONGO_URI, {
   useNewUrlParser: true,

@@ -11,6 +11,7 @@ import { confirmOrderBySeller , denyOrderBySeller } from '../controllers/orderCo
 import { isSeller, isCustomer } from '../middleware/authMiddleware.js';
 import { getSellerOrders } from '../controllers/orderController.js';
 import sendDeclinedOrderEmailToCustomer from '../utils/sendDeclinedOrderEmailToCustomer.js';
+import { getOrderHistory } from '../controllers/orderController.js';
 
 const router = express.Router();
 
@@ -79,25 +80,60 @@ router.post('/complete', protect, isCustomer ,completeOrder, async (req, res) =>
   }
 });
 
-// ✅ Προβολή ιστορικού παραγγελιών (Customer ή Partner)
 router.get('/', protect, async (req, res) => {
   try {
-    let orders;
+    const { from, to } = req.query;
+
+    let query = {};
 
     if (req.user.role === 'customer') {
-      orders = await Order.find({ customer: req.user._id })
-        .sort({ createdAt: -1 })
-        .populate('store', 'storeName');
-    } else if (req.user.role === 'partner') {
+      query.customer = req.user._id;
+    } else if (req.user.role === 'seller') {
       const store = await Store.findOne({ user: req.user._id });
       if (!store) return res.status(404).json({ message: 'Δεν βρέθηκε κατάστημα' });
-
-      orders = await Order.find({ store: store._id })
-        .sort({ createdAt: -1 })
-        .populate('customer', 'username customerRegion customerStreetAddress customerFloor customerDoorbell customerMobilePhone');
+      query.store = store._id;
     } else {
       return res.status(403).json({ message: 'Δεν έχεις πρόσβαση σε παραγγελίες' });
     }
+
+    // ➕ Χτίζουμε το φίλτρο createdAt μόνο αν υπάρχει τουλάχιστον ένα πεδίο
+    if (from || to) {
+      query.createdAt = {};
+
+      if (!from || from.trim() === '') {
+  const firstOrder = await Order.findOne(query).sort({ createdAt: 1 }).select('createdAt');
+  if (firstOrder) {
+    query.createdAt = query.createdAt || {};
+    query.createdAt.$gte = firstOrder.createdAt;
+  }
+} else {
+  const fromDate = new Date(from);
+  if (!isNaN(fromDate)) {
+    query.createdAt = query.createdAt || {};
+    query.createdAt.$gte = fromDate;
+  }
+}
+
+
+      if (to) {
+        const endOfDay = new Date(to);
+        endOfDay.setHours(23, 59, 59, 999);
+        query.createdAt.$lte = endOfDay;
+      }
+    }
+
+    const populateField =
+      req.user.role === 'customer'
+        ? { path: 'store', select: 'storeName' }
+        : {
+            path: 'customer',
+            select:
+              'username customerRegion customerStreetAddress customerFloor customerDoorbell customerMobilePhone',
+          };
+
+    const orders = await Order.find(query)
+      .sort({ createdAt: -1 })
+      .populate(populateField);
 
     res.json(orders);
   } catch (err) {
@@ -107,7 +143,10 @@ router.get('/', protect, async (req, res) => {
 });
 
 
-// ✅ Επιβεβαίωση παραγγελίας από Partner
+
+
+
+// ✅ Επιβεβαίωση παραγγελίας από Selller
 router.put('/confirm/:orderId', protect, isSeller, confirmOrderBySeller,  async (req, res) => {
   try {
     const { orderId } = req.params;
@@ -119,7 +158,7 @@ router.put('/confirm/:orderId', protect, isSeller, confirmOrderBySeller,  async 
 
     if (!order) return res.status(404).json({ message: 'Η παραγγελία δεν βρέθηκε' });
 
-    if (req.user.role !== 'partner') return res.status(403).json({ message: 'Μόνο συνεργάτες μπορούν να επιβεβαιώσουν παραγγελίες' });
+    if (req.user.role !== 'Seller') return res.status(403).json({ message: 'Μόνο συνεργάτες μπορούν να επιβεβαιώσουν παραγγελίες' });
     if (order.store.user.toString() !== req.user._id.toString()) return res.status(403).json({ message: 'Δεν έχεις πρόσβαση σε αυτή την παραγγελία' });
 
     order.confirmed = true;
