@@ -1,14 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
-import LoginRegister from './LoginRegister';
 
-const Navbar = ({ user }) => {
+const Navbar = ({ user, onLoginClick }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const { cartItems } = useCart();
 
-  const [showLoginModal, setShowLoginModal] = useState(false);
   const [role, setRole] = useState(null);
   const [username, setUsername] = useState(null);
   const [showDropdown, setShowDropdown] = useState(false);
@@ -18,58 +16,38 @@ const Navbar = ({ user }) => {
       setRole(user.role);
       setUsername(user.username);
     } else {
-      setRole(null);
-      setUsername(null);
+      setRole(localStorage.getItem('role'));
+      setUsername(localStorage.getItem('username'));
     }
   }, [user]);
 
   useEffect(() => {
-    // Open login modal if ?login=1 is in the URL
     if (new URLSearchParams(location.search).get('login') === '1') {
-      setShowLoginModal(true);
-      // Optionally, remove the query from the URL after opening
+      onLoginClick();
       window.history.replaceState({}, document.title, '/');
     }
-  }, [location]);
-
-  useEffect(() => {
-    const openLoginModal = () => setShowLoginModal(true);
-    window.addEventListener('open-login-modal', openLoginModal);
-    return () => window.removeEventListener('open-login-modal', openLoginModal);
-  }, []);
+  }, [location, onLoginClick]);
 
   const handleLogout = () => {
     localStorage.clear();
     setRole(null);
     setUsername(null);
-    setShowLoginModal(false);
     setShowDropdown(false);
     navigate('/');
-  };
-
-  const handleLoginSuccess = () => {
-    setShowLoginModal(false);
-    setRole(localStorage.getItem('role'));
-    setUsername(localStorage.getItem('username'));
-    navigate('/customer');
   };
 
   return (
     <>
       <nav style={styles.navbar}>
-        <div style={styles.logo} onClick={() => navigate('/')}>
-          📚 Bookshop App
-        </div>
+        <div style={styles.logo} onClick={() => navigate('/')}>📚 Bookshop App</div>
 
         <div style={styles.rightSection}>
-          {/* ✅ Αν ΔΕΝ είναι login, εμφάνιση μόνο login κουμπιού */}
-          {!role && !showLoginModal && (
-            <button onClick={() => setShowLoginModal(true)} style={styles.button}>
+          {!role && (
+            <button onClick={onLoginClick} style={styles.button}>
               🔐 Σύνδεση / Εγγραφή
             </button>
           )}
 
-          {/* ✅ Αν είναι login, εμφάνιση όλων των υπολοίπων */}
           {role && (
             <>
               <button onClick={() => navigate('/books')} style={styles.button}>
@@ -84,7 +62,6 @@ const Navbar = ({ user }) => {
 
               <span style={styles.username}>👤 {username}</span>
 
-              {/* Burger Menu */}
               <div style={styles.burgerWrapper}>
                 <div style={styles.burger} onClick={() => setShowDropdown((prev) => !prev)}>
                   <div style={styles.line}></div>
@@ -94,24 +71,21 @@ const Navbar = ({ user }) => {
 
                 {showDropdown && (
                   <div style={styles.dropdown}>
-                    {role==='customer'&&(
+                    {role === 'customer' && (
                       <button onClick={() => navigate('/account')} style={styles.dropdownItem}>
-                      👤 Λογαριασμός
+                        👤 Λογαριασμός
                       </button>
                     )}
-                    {role==='seller'&&(
+                    {role === 'seller' && (
                       <button onClick={() => navigate('/seller')} style={styles.dropdownItem}>
-                      🧑‍💼 Πίνακας Πωλητή
+                        🧑‍💼 Πίνακας Πωλητή
                       </button>
                     )}
-                    
-
                     {role === 'customer' && (
                       <button onClick={() => navigate('/order-history')} style={styles.dropdownItem}>
                         🧾 Παραγγελίες
                       </button>
                     )}
-
                     <button onClick={handleLogout} style={styles.dropdownItem}>
                       🚪 Αποσύνδεση
                     </button>
@@ -122,17 +96,8 @@ const Navbar = ({ user }) => {
           )}
         </div>
       </nav>
-
-      {/* Modal login/register */}
-      {showLoginModal && (
-        <LoginRegister
-          closeModal={() => setShowLoginModal(false)}
-          onLoginSuccess={handleLoginSuccess}
-        />
-      )}
     </>
   );
-
 };
 
 const styles = {

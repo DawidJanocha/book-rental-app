@@ -37,6 +37,10 @@ const bookSchema = new mongoose.Schema({
   ref: 'Store',
   required: true,
 },
+imageUrl: {
+  type: String,
+  default: '',
+},
 }, { timestamps: true });
 
 export default mongoose.model('Book', bookSchema);

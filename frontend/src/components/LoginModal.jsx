@@ -2,8 +2,6 @@
 import React, { useState } from 'react';
 import axios from '../utils/axiosInstance';
 import { useNavigate } from 'react-router-dom';
-import './LoginModal.css';
-
 
 function LoginModal({ onClose }) {
   const [isRegister, setIsRegister] = useState(false);
@@ -13,7 +11,8 @@ function LoginModal({ onClose }) {
   const [password, setPassword] = useState('');
 
   const navigate = useNavigate();
-    const handleSubmit = async (e) => {
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     const data = isRegister
@@ -35,11 +34,12 @@ function LoginModal({ onClose }) {
       const { token, user } = res.data;
       localStorage.setItem('token', token);
       localStorage.setItem('role', user.role);
+      localStorage.setItem('username', user.username);
 
       if (user.role === 'customer') {
-        navigate('/');
+        navigate('/books');
       } else if (user.role === 'partner') {
-        navigate('/partner-dashboard');
+        navigate('/seller');
       }
 
       onClose();
@@ -47,11 +47,24 @@ function LoginModal({ onClose }) {
       alert('❌ Σφάλμα: ' + (err.response?.data?.message || 'Άγνωστο σφάλμα'));
     }
   };
-    return (
-    <div className="modal-overlay">
-      <div className="modal-content">
-        <h2>{isRegister ? 'Εγγραφή Χρήστη' : 'Σύνδεση Χρήστη'}</h2>
-        <form onSubmit={handleSubmit} className="modal-form">
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50">
+      <div className="relative bg-zinc-900 text-white rounded-xl shadow-xl px-8 pt-10 pb-6 w-full max-w-md border border-gray-700 transition-all duration-300 ease-out scale-95 opacity-0 animate-[fadeIn_0.3s_ease-out_forwards]
+">
+        {/* Κουμπί Κλεισίματος πάνω δεξιά */}
+        <button
+          onClick={onClose}
+          className="absolute top-3 right-3 text-gray-400 hover:text-red-400 text-lg font-bold"
+        >
+          ✖
+        </button>
+
+        <h2 className="text-center text-2xl font-bold mb-6">
+          {isRegister ? '📝 Εγγραφή Χρήστη' : '🔐 Σύνδεση Χρήστη'}
+        </h2>
+
+        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           {isRegister && (
             <>
               <input
@@ -60,8 +73,13 @@ function LoginModal({ onClose }) {
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 required
+                className="bg-gray-800 p-2 rounded text-white placeholder-gray-400 border border-gray-600"
               />
-              <select value={role} onChange={(e) => setRole(e.target.value)}>
+              <select
+                value={role}
+                onChange={(e) => setRole(e.target.value)}
+                className="bg-gray-800 p-2 rounded text-white border border-gray-600"
+              >
                 <option value="customer">Πελάτης</option>
                 <option value="partner">Συνεργάτης</option>
               </select>
@@ -74,25 +92,33 @@ function LoginModal({ onClose }) {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
+            className="bg-gray-800 p-2 rounded text-white placeholder-gray-400 border border-gray-600"
           />
+
           <input
             type="password"
             placeholder="Κωδικός"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
+            className="bg-gray-800 p-2 rounded text-white placeholder-gray-400 border border-gray-600"
           />
 
-          <button type="submit" className="submit-btn">
+          <button
+            type="submit"
+            className="bg-yellow-500 hover:bg-yellow-400 text-black font-semibold py-2 rounded transition"
+          >
             {isRegister ? 'Εγγραφή' : 'Σύνδεση'}
           </button>
         </form>
 
-        <div className="modal-footer">
-          <button onClick={() => setIsRegister(!isRegister)} className="toggle-btn">
+        <div className="flex flex-col items-center mt-6 gap-2">
+          <button
+            onClick={() => setIsRegister(!isRegister)}
+            className="text-blue-400 hover:underline text-sm"
+          >
             {isRegister ? 'Έχεις λογαριασμό; Σύνδεση' : 'Δεν έχεις λογαριασμό; Εγγραφή'}
           </button>
-          <button onClick={onClose} className="close-btn">Έξοδος</button>
         </div>
       </div>
     </div>

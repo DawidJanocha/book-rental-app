@@ -1,5 +1,5 @@
 // src/App.js
-import React, { useContext } from 'react';
+import React, { useContext, useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import CustomerPage from './pages/CustomerPage';
 import SellerPage from './pages/SellerPage';
@@ -16,14 +16,24 @@ import ProtectedRoute from './components/ProtectedRoute';
 import StoreDetails from './pages/StoreDetails';
 import ForbiddenPage from './pages/ForbiddenPage';
 import Footer from './components/Footer';
+import MainPage from './pages/MainPage';
+import LoginModal from './components/LoginModal';
 
 function AppContent() {
   const { user } = useContext(AuthContext);
+  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
+
+  const handleLoginOpen = () => setIsLoginModalOpen(true);
+  const handleLoginClose = () => setIsLoginModalOpen(false);
 
   return (
     <>
-      <Navbar />
+      <Navbar onLoginClick={handleLoginOpen} />
+
       <Routes>
+        <Route path="/mainpage" element={<MainPage />} />
+        <Route path="/" element={<Navigate to="/mainpage" replace />} />
+        <Route path="/login" element={<Navigate to="/" replace />} />
         <Route path="/customer" element={<CustomerPage />} />
         <Route path="/seller" element={<SellerPage />} />
         <Route path="/cart" element={<CartPage />} />
@@ -34,19 +44,25 @@ function AppContent() {
         <Route path="/forbidden" element={<ForbiddenPage />} />
         <Route path="/store/:storeId" element={<StoreDetails />} />
         <Route
-  path="/order-history"
-  element={
-    <ProtectedRoute role="customer">
-      <OrderHistory />
-    </ProtectedRoute>
-    
-  }
-  
-/>
-
-        <Route path="/books" element={ <ProtectedRoute> <CustomerPage /> </ProtectedRoute>} />
-
+          path="/order-history"
+          element={
+            <ProtectedRoute role="customer">
+              <OrderHistory />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/books"
+          element={
+            <ProtectedRoute>
+              <CustomerPage />
+            </ProtectedRoute>
+          }
+        />
       </Routes>
+
+      {isLoginModalOpen && <LoginModal onClose={handleLoginClose} />}
+
       <Footer />
     </>
   );
@@ -63,7 +79,5 @@ function App() {
     </AuthProvider>
   );
 }
-
-
 
 export default App;

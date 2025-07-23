@@ -109,6 +109,59 @@ export const updateBook = async (req, res) => {
   }
 };
 
+// 📚 Φέρνει τα πιο πρόσφατα προστιθέμενα βιβλία
+export const getRecentBooks = async (req, res) => {
+  try {
+    const books = await Book.find({ available: true })
+      .sort({ createdAt: -1 })
+      .limit(12);
+    res.status(200).json(books);
+  } catch (error) {
+    res.status(500).json({ message: 'Σφάλμα κατά την ανάκτηση πρόσφατων βιβλίων.' });
+  }
+};
+
+
+// ⭐ Δημοφιλέστερα βιβλία με βάση πλήθος παραγγελιών
+export const getBestSellers = async (req, res) => {
+  try {
+    const bestSellers = await Order.aggregate([
+      { $unwind: "$items" },
+      { $group: {
+          _id: "$items.bookId",
+          totalRented: { $sum: "$items.quantity" }
+        }
+      },
+      { $sort: { totalRented: -1 } },
+      { $limit: 5 },
+      {
+        $lookup: {
+          from: "books",
+          localField: "_id",
+          foreignField: "_id",
+          as: "book"
+        }
+      },
+      { $unwind: "$book" },
+      {
+        $project: {
+          _id: "$book._id",
+          title: "$book.title",
+          description: "$book.description",
+          rentalPrice: "$book.rentalPrice",
+          imageUrl: "$book.imageUrl",
+          totalRented: 1
+        }
+      }
+    ]);
+
+    res.status(200).json(bestSellers);
+  } catch (error) {
+    console.error('getBestSellers error:', error);
+    res.status(500).json({ message: 'Σφάλμα κατά την ανάκτηση best sellers.' });
+  }
+};
+
 
 export const getBooksByStore = async (req, res) => {
   try {

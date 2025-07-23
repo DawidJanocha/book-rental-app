@@ -1,0 +1,179 @@
+/* MainPage.css */
+
+/* Βασικό στυλ της σελίδας */
+.main-page {
+  max-width: 900px; /* Περιορίζει το πλάτος σε 900px για καλύτερη ανάγνωση */
+  margin: 0 auto; /* Κεντράρει οριζόντια τη σελίδα */
+  padding: 20px; /* Εσωτερικό padding γύρω από το περιεχόμενο */
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* Οικογένεια γραμματοσειράς */
+  background-color: #f8f9fa; /* Απαλό γκρι φόντο για ευχάριστη εμφάνιση */
+  color: #222; /* Σκούρο γκρι κείμενο για καλή αναγνωσιμότητα */
+}
+
+/* Κύριος τίτλος */
+.main-title {
+  font-size: 2.8rem; /* Μεγάλο μέγεθος γραμματοσειράς */
+  font-weight: 700; /* Έντονη γραφή */
+  color: #2c3e50; /* Σκούρο μπλε χρώμα */
+  text-align: center; /* Κεντράρισμα τίτλου */
+  margin-bottom: 10px; /* Κενό κάτω από τον τίτλο */
+}
+
+/* Μικρό υπότιτλος */
+.main-subtitle {
+  font-size: 1.2rem; /* Μεσαίο μέγεθος γραμματοσειράς */
+  color: #555; /* Απαλό σκούρο γκρι χρώμα */
+  text-align: center; /* Κεντράρισμα */
+  margin-bottom: 40px; /* Μεγάλο κενό κάτω από τον υπότιτλο */
+}
+
+/* Κάθε ενότητα βιβλίων */
+.book-section {
+  margin-bottom: 40px; /* Κενό κάτω από κάθε ενότητα */
+}
+
+/* Τίτλος ενότητας */
+.section-title {
+  font-size: 1.8rem; /* Μεγαλύτερο μέγεθος για τίτλους */
+  font-weight: 600; /* Έντονο */
+  color: #f39c12; /* Κεχριμπαρένιο πορτοκαλί χρώμα */
+  border-bottom: 3px solid #f39c12; /* Κάτω γραμμή με το ίδιο χρώμα */
+  padding-bottom: 5px; /* Padding κάτω από τον τίτλο */
+  margin-bottom: 20px; /* Κενό κάτω από τον τίτλο */
+}
+
+/* Κάθε βιβλίο στο slider */
+.book-item {
+  background-color: #fff; /* Λευκό φόντο για να ξεχωρίζει */
+  padding: 15px 20px; /* Εσωτερικό padding */
+  border-radius: 12px; /* Στρογγυλεμένες γωνίες */
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1); /* Μαλακή σκιά για βάθος */
+  transition: transform 0.3s ease, box-shadow 0.3s ease; /* Ομαλή μετάβαση εφέ */
+  height: 180px; /* Σταθερό ύψος */
+  display: flex; /* Flexbox για στοίχιση περιεχομένου */
+  flex-direction: column; /* Τα στοιχεία τοποθετούνται σε στήλη */
+  justify-content: space-between; /* Κατανομή χώρου μεταξύ στοιχείων */
+}
+
+/* Εφέ hover σε κάθε βιβλίο */
+.book-item:hover {
+  transform: translateY(-8px); /* Ανύψωση κατά 8px */
+  box-shadow: 0 8px 20px rgba(0,0,0,0.15); /* Εντονότερη σκιά */
+}
+
+/* Κεφαλίδα βιβλίου (τίτλος + νέο label) */
+.book-header {
+  display: flex; /* Flexbox για στοίχιση */
+  justify-content: space-between; /* Χώρος ανάμεσα σε τίτλο και ετικέτα */
+  align-items: center; /* Κεντράρισμα κατακόρυφα */
+}
+
+/* Τίτλος βιβλίου */
+.book-title {
+  font-weight: 700; /* Έντονη γραφή */
+  font-size: 1.1rem; /* Μέγεθος γραμματοσειράς */
+  color: #34495e; /* Σκούρο μπλε/γκρι χρώμα */
+  max-width: 80%; /* Μέγιστο πλάτος για να μην επεκτείνεται πολύ */
+  overflow: hidden; /* Απόκρυψη περιττού κειμένου */
+  text-overflow: ellipsis; /* Προσθήκη τριών τελειών (...) */
+  white-space: nowrap; /* Αποφυγή αναδίπλωσης */
+}
+
+/* Ετικέτα "NEW" για νέα βιβλία */
+.new-label {
+  background-color: #27ae60; /* Φρέσκο πράσινο χρώμα */
+  color: white; /* Άσπρο κείμενο */
+  font-weight: 700; /* Έντονο */
+  font-size: 0.75rem; /* Μικρό μέγεθος */
+  padding: 2px 8px; /* Εσωτερικό padding */
+  border-radius: 12px; /* Στρογγυλεμένες γωνίες */
+  user-select: none; /* Δεν μπορεί να επιλεχθεί το κείμενο */
+}
+
+/* Περιγραφή βιβλίου */
+.book-description {
+  font-size: 0.9rem; /* Μικρότερο μέγεθος κειμένου */
+  color: #666; /* Απαλό γκρι */
+  margin-top: 10px; /* Κενό πάνω από την περιγραφή */
+  overflow: hidden; /* Απόκρυψη περιττού κειμένου */
+  text-overflow: ellipsis; /* Προσθήκη τριών τελειών (...) */
+  display: -webkit-box; /* Ειδικό στυλ για περιορισμό γραμμών */
+  -webkit-line-clamp: 4; /* Περιορισμός σε 4 γραμμές */
+  -webkit-box-orient: vertical; /* Κατακόρυφη κατεύθυνση */
+}
+
+/* Container για το κουμπί "Δείτε όλα τα βιβλία" */
+.view-all-container {
+  text-align: right; /* Ευθυγράμμιση κουμπιού δεξιά */
+  margin-bottom: 40px; /* Κενό κάτω */
+}
+
+/* Στυλ κουμπιού "Δείτε όλα τα βιβλία" */
+.view-all-button {
+  background-color: #f39c12; /* Κεχριμπάρι */
+  color: white; /* Άσπρο κείμενο */
+  font-weight: 600; /* Έντονο */
+  padding: 10px 22px; /* Εσωτερικό padding */
+  border-radius: 25px; /* Πολύ στρογγυλεμένες γωνίες */
+  text-decoration: none; /* Χωρίς υπογράμμιση */
+  font-size: 1.05rem; /* Μέγεθος γραμματοσειράς */
+  box-shadow: 0 3px 10px rgba(243,156,18,0.5); /* Απαλή σκιά */
+  transition: background-color 0.3s ease; /* Ομαλή μετάβαση χρώματος */
+  cursor: pointer; /* Δείχνει χέρι */
+}
+
+/* Εφέ hover στο κουμπί */
+.view-all-button:hover {
+  background-color: #e67e22; /* Σκούρο πορτοκαλί */
+}
+
+/* Ενότητα επικοινωνίας */
+.contact-section {
+  background-color: #fff; /* Λευκό φόντο */
+  border-radius: 12px; /* Στρογγυλεμένες γωνίες */
+  padding: 30px 25px; /* Εσωτερικό padding */
+  box-shadow: 0 4px 15px rgba(0,0,0,0.1); /* Μαλακή σκιά */
+  text-align: center; /* Κεντράρισμα κειμένου */
+  font-size: 1.1rem; /* Μέγεθος γραμματοσειράς */
+  color: #444; /* Σκούρο γκρι */
+  line-height: 1.5; /* Ύψος γραμμής */
+}
+
+/* Σύνδεσμος email στην επικοινωνία */
+.contact-email {
+  color: #f39c12; /* Κεχριμπάρι χρώμα */
+  font-weight: 700; /* Έντονο */
+  text-decoration: none; /* Χωρίς υπογράμμιση */
+  cursor: pointer; /* Δείχνει χέρι */
+  transition: color 0.3s ease; /* Ομαλή μετάβαση χρώματος */
+}
+
+/* Εφέ hover στο σύνδεσμο email */
+.contact-email:hover {
+  color: #e67e22; /* Σκούρο πορτοκαλί */
+  text-decoration: underline; /* Υπογράμμιση */
+}
+
+/* Responsive για μικρές οθόνες */
+@media (max-width: 768px) {
+  .book-item {
+    height: auto; /* Αυτόματο ύψος για μικρές οθόνες */
+  }
+
+  .main-title {
+    font-size: 2.2rem; /* Μικρότερο μέγεθος τίτλου */
+  }
+
+  .section-title {
+    font-size: 1.5rem; /* Μικρότερο μέγεθος τίτλου ενότητας */
+  }
+
+  .main-subtitle {
+    font-size: 1rem; /* Μικρότερο μέγεθος υπότιτλου */
+  }
+
+  .view-all-button {
+    padding: 10px 16px; /* Μικρότερο padding */
+    font-size: 0.95rem; /* Μικρότερο μέγεθος γραμματοσειράς */
+  }
+}

@@ -11,6 +11,7 @@ import {
   rentBook,
   rentMultipleBooks,
   getBooksByStore,
+  getRecentBooks, getBestSellers,
 } from '../controllers/bookController.js';
 
 import {
@@ -40,6 +41,12 @@ router.put('/rent/:bookId', protect, isCustomer, rentBook);
 
 // ✅ Ενοικίαση πολλών βιβλίων (μόνο για customer)
 router.put('/rent-multiple', protect, isCustomer, rentMultipleBooks);
+
+// ✅ Νέα βιβλία με βάση ημερομηνία δημιουργίας
+router.get('/recent', getRecentBooks);
+
+// ✅ Best sellers με βάση παραγγελίες
+router.get('/best-sellers', getBestSellers);
 
 
 //Επιστροφή στοιχειων 
