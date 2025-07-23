@@ -1,7 +1,8 @@
 // src/components/LoginModal.jsx
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import axios from '../utils/axiosInstance';
 import { useNavigate } from 'react-router-dom';
+import { AuthContext } from '../context/AuthContext';
 
 function LoginModal({ onClose }) {
   const [isRegister, setIsRegister] = useState(false);
@@ -11,38 +12,35 @@ function LoginModal({ onClose }) {
   const [password, setPassword] = useState('');
 
   const navigate = useNavigate();
+  const { login, setUser } = useContext(AuthContext);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const data = isRegister
+    const payload = isRegister
       ? { email, password, username, role }
       : { email, password };
 
     try {
-      const res = await axios.post(
-        isRegister ? '/auth/register' : '/auth/login',
-        data
-      );
+      if (isRegister) {
+        const res = await axios.post('/auth/register', payload);
+        if (res.status === 201) {
+          alert('✅ Εγγραφή επιτυχής. Κάνε σύνδεση!');
+          setIsRegister(false);
+          return;
+        }
+      } else {
+        const { user, token } = await login(payload);
+        setUser(user); // ✅ ΤΟ ΣΗΜΑΝΤΙΚΟ FIX
 
-      if (isRegister && res.status === 201) {
-        alert('✅ Εγγραφή επιτυχής. Κάνε σύνδεση!');
-        setIsRegister(false);
-        return;
+        if (user.role === 'customer') {
+          navigate('/books');
+        } else if (user.role === 'seller') {
+          navigate('/seller');
+        }
+
+        onClose();
       }
-
-      const { token, user } = res.data;
-      localStorage.setItem('token', token);
-      localStorage.setItem('role', user.role);
-      localStorage.setItem('username', user.username);
-
-      if (user.role === 'customer') {
-        navigate('/books');
-      } else if (user.role === 'partner') {
-        navigate('/seller');
-      }
-
-      onClose();
     } catch (err) {
       alert('❌ Σφάλμα: ' + (err.response?.data?.message || 'Άγνωστο σφάλμα'));
     }
@@ -50,9 +48,7 @@ function LoginModal({ onClose }) {
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50">
-      <div className="relative bg-zinc-900 text-white rounded-xl shadow-xl px-8 pt-10 pb-6 w-full max-w-md border border-gray-700 transition-all duration-300 ease-out scale-95 opacity-0 animate-[fadeIn_0.3s_ease-out_forwards]
-">
-        {/* Κουμπί Κλεισίματος πάνω δεξιά */}
+      <div className="relative bg-zinc-900 text-white rounded-xl shadow-xl px-8 pt-10 pb-6 w-full max-w-md border border-gray-700 transition-all duration-300 ease-out scale-95 opacity-0 animate-[fadeIn_0.3s_ease-out_forwards]">
         <button
           onClick={onClose}
           className="absolute top-3 right-3 text-gray-400 hover:text-red-400 text-lg font-bold"

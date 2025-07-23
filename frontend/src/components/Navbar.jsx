@@ -1,25 +1,16 @@
-import React, { useEffect, useState } from 'react';
+// src/components/Navbar.jsx
+import React, { useEffect, useState, useContext } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
+import { AuthContext } from '../context/AuthContext';
 
-const Navbar = ({ user, onLoginClick }) => {
+const Navbar = ({ onLoginClick }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const { cartItems } = useCart();
+  const { user, logout } = useContext(AuthContext);
 
-  const [role, setRole] = useState(null);
-  const [username, setUsername] = useState(null);
   const [showDropdown, setShowDropdown] = useState(false);
-
-  useEffect(() => {
-    if (user) {
-      setRole(user.role);
-      setUsername(user.username);
-    } else {
-      setRole(localStorage.getItem('role'));
-      setUsername(localStorage.getItem('username'));
-    }
-  }, [user]);
 
   useEffect(() => {
     if (new URLSearchParams(location.search).get('login') === '1') {
@@ -29,9 +20,7 @@ const Navbar = ({ user, onLoginClick }) => {
   }, [location, onLoginClick]);
 
   const handleLogout = () => {
-    localStorage.clear();
-    setRole(null);
-    setUsername(null);
+    logout();
     setShowDropdown(false);
     navigate('/');
   };
@@ -39,28 +28,30 @@ const Navbar = ({ user, onLoginClick }) => {
   return (
     <>
       <nav style={styles.navbar}>
-        <div style={styles.logo} onClick={() => navigate('/')}>📚 Bookshop App</div>
+        <div style={styles.logo} onClick={() => navigate('/')}>
+          📚 Bookshop App
+        </div>
 
         <div style={styles.rightSection}>
-          {!role && (
+          {!user && (
             <button onClick={onLoginClick} style={styles.button}>
               🔐 Σύνδεση / Εγγραφή
             </button>
           )}
 
-          {role && (
+          {user && (
             <>
               <button onClick={() => navigate('/books')} style={styles.button}>
                 📖 Βιβλία
               </button>
 
-              {role === 'customer' && (
+              {user.role === 'customer' && (
                 <button onClick={() => navigate('/cart')} style={styles.button}>
                   🛒 Καλάθι ({cartItems.reduce((sum, item) => sum + item.quantity, 0)})
                 </button>
               )}
 
-              <span style={styles.username}>👤 {username}</span>
+              <span style={styles.username}>👤 {user.username}</span>
 
               <div style={styles.burgerWrapper}>
                 <div style={styles.burger} onClick={() => setShowDropdown((prev) => !prev)}>
@@ -71,19 +62,19 @@ const Navbar = ({ user, onLoginClick }) => {
 
                 {showDropdown && (
                   <div style={styles.dropdown}>
-                    {role === 'customer' && (
-                      <button onClick={() => navigate('/account')} style={styles.dropdownItem}>
-                        👤 Λογαριασμός
-                      </button>
+                    {user.role === 'customer' && (
+                      <>
+                        <button onClick={() => navigate('/account')} style={styles.dropdownItem}>
+                          👤 Λογαριασμός
+                        </button>
+                        <button onClick={() => navigate('/order-history')} style={styles.dropdownItem}>
+                          🧾 Παραγγελίες
+                        </button>
+                      </>
                     )}
-                    {role === 'seller' && (
+                    {user.role === 'seller' && (
                       <button onClick={() => navigate('/seller')} style={styles.dropdownItem}>
                         🧑‍💼 Πίνακας Πωλητή
-                      </button>
-                    )}
-                    {role === 'customer' && (
-                      <button onClick={() => navigate('/order-history')} style={styles.dropdownItem}>
-                        🧾 Παραγγελίες
                       </button>
                     )}
                     <button onClick={handleLogout} style={styles.dropdownItem}>

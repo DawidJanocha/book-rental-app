@@ -1,10 +1,12 @@
+// src/pages/MainPage.jsx
 import React, { useEffect, useState } from 'react';
 import axios from '../utils/axiosInstance';
-import './MainPage.css';
 import { Link } from 'react-router-dom';
-import 'slick-carousel/slick/slick.css';
-import 'slick-carousel/slick/slick-theme.css';
-import Slider from 'react-slick'; 
+import { Swiper, SwiperSlide } from 'swiper/react';
+import 'swiper/css';
+import 'swiper/css/pagination';
+import 'swiper/css/navigation';
+import { Pagination, Autoplay } from 'swiper/modules';
 
 const MainPage = () => {
   const [recentBooks, setRecentBooks] = useState([]);
@@ -17,8 +19,14 @@ const MainPage = () => {
 
   const fetchRecentBooks = async () => {
     try {
-      const response = await axios.get('/books/recent');
-      setRecentBooks(response.data);
+      const response = await axios.get('/books');
+      const now = new Date();
+      const filtered = response.data.filter((book) => {
+        const bookDate = new Date(book.createdAt);
+        const diffInHours = (now - bookDate) / 1000 / 60 / 60;
+        return diffInHours <= 48;
+      });
+      setRecentBooks(filtered);
     } catch (error) {
       console.error('Σφάλμα κατά την ανάκτηση νέων βιβλίων:', error);
     }
@@ -40,103 +48,82 @@ const MainPage = () => {
     return diffInHours <= 48;
   };
 
+  const renderBookCard = (book) => (
+    <div key={book._id} className="bg-white rounded-lg shadow-md p-4">
+      <div className="flex items-center justify-between mb-2">
+        <span className="font-bold text-gray-800 text-base truncate max-w-[90%]">{book.title}</span>
+        {isNewBook(book.createdAt) && (
+          <span className="text-xs bg-green-500 text-white px-2 py-1 rounded-full">NEW</span>
+        )}
+      </div>
+      <p className="text-sm text-gray-600 line-clamp-3">{book.description}</p>
+    </div>
+  );
+
   return (
-    <div className="main-page">
-      <h1 className="main-title">📗 Book Delivery App</h1>
-      <p className="main-subtitle">
-        Καλωσορίσατε στην 1η ελληνική πλατφόρμα για παράδοση βιβλίων κατ’ οίκον! 
-        Υποστηρίζουμε τοπικά βιβλιοπωλεία και συγγραφείς σε όλη την Ελλάδα.
-      </p>
+    <div className="px-4 py-12 bg-gradient-to-b from-yellow-50 via-white to-yellow-100 min-h-screen flex justify-center">
+      <div className="w-full max-w-screen-xl">
+        <h1 className="text-4xl font-extrabold text-center text-green-800 mb-4">📚 Book Rental App</h1>
+        <p className="text-center text-gray-700 max-w-2xl mx-auto mb-12 text-lg">
+          Καλωσορίσατε στην 1η ελληνική πλατφόρμα για ενοικίαση βιβλίων!<br />
+          Υποστηρίζουμε τοπικά βιβλιοπωλεία και συγγραφείς σε όλη την Ελλάδα.
+        </p>
 
- <section className="book-section">
-  <h2 className="section-title">🆕 Νέα Βιβλία</h2>
-    <Slider
-  dots={true}
-  infinite={true}
-  speed={500}
-  autoplay={true}
-  autoplaySpeed={3000} // κάθε 3 δευτερόλεπτα
-  slidesToShow={3}
-  slidesToScroll={1}
-  responsive={[
-    { breakpoint: 1024, settings: { slidesToShow: 2 } },
-    { breakpoint: 600, settings: { slidesToShow: 1 } }
-  ]}
-  >
-    {recentBooks.map((book) => (
-      <div key={book._id} className="book-item">
-        <div className="book-info">
-          <div className="book-header">
-            <span className="book-title">{book.title}</span>
-            {isNewBook(book.createdAt) && (
-              <span className="new-label">NEW</span>
-            )}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-10 mb-20">
+          <div className="bg-white border border-green-500 rounded-xl shadow-lg p-6">
+            <h2 className="text-2xl font-bold text-green-700 mb-4 text-center">🆕 Νέες αφίξεις </h2>
+            <Swiper
+              slidesPerView={1}
+              spaceBetween={20}
+              pagination={{ clickable: true }}
+              autoplay={{ delay: 3000 }}
+              loop={true}
+              modules={[Pagination, Autoplay]}
+            >
+              {recentBooks.map((book) => (
+                <SwiperSlide key={book._id}>{renderBookCard(book)}</SwiperSlide>
+              ))}
+            </Swiper>
           </div>
-          <p className="book-description">{book.description}</p>
+
+          <div className="bg-white border border-blue-500 rounded-xl shadow-lg p-6">
+            <h2 className="text-2xl font-bold text-blue-700 mb-4 text-center">⭐ Δημοφιλέστερα Βιβλία</h2>
+            <Swiper
+              slidesPerView={1}
+              spaceBetween={20}
+              pagination={{ clickable: true }}
+              autoplay={{ delay: 3000 }}
+              loop={true}
+              modules={[Pagination, Autoplay]}
+            >
+              {bestSellers.map((book) => (
+                <SwiperSlide key={book._id}>{renderBookCard(book)}</SwiperSlide>
+              ))}
+            </Swiper>
+          </div>
         </div>
-      </div>
-    ))}
-  </Slider>
 
-
-  
-</section>
-<div className="view-all-container">
-  <Link to="/books" className="view-all-button">
-    📚 Δείτε όλα τα βιβλία
-  </Link>
-</div>
-
-<section className="book-section">
-  <h2 className="section-title">⭐ Δημοφιλέστερα Βιβλία</h2>
-  <Slider
-  dots={true}
-  infinite={true}
-  speed={500}
-  autoplay={true}
-  autoplaySpeed={3000} // κάθε 3 δευτερόλεπτα
-  slidesToShow={3}
-  slidesToScroll={1}
-  responsive={[
-    { breakpoint: 1024, settings: { slidesToShow: 2 } },
-    { breakpoint: 600, settings: { slidesToShow: 1 } }
-  ]}
-  >
-    {bestSellers.map((book) => (
-      <div key={book._id} className="book-item">
-        <div className="book-info">
-          <span className="book-title">{book.title}</span>
-          <p className="book-description">{book.description}</p>
+        <div className="text-center mb-20">
+          <Link
+            to="/books"
+            className="inline-block bg-yellow-400 text-black font-semibold px-6 py-3 rounded-lg hover:bg-yellow-300 transition"
+          >
+            📚 Δείτε όλα τα βιβλία
+          </Link>
         </div>
+
+        <section className="text-center">
+          <h2 className="text-2xl font-semibold text-gray-800 mb-3">📬 Επικοινωνία</h2>
+          <p className="text-gray-700 mb-1">Έχεις απορίες ή χρειάζεσαι βοήθεια με την παραγγελία σου;</p>
+          <p>
+            <a href="mailto:bookdelivery@app.gr" className="text-blue-600 hover:underline">
+              bookdelivery@app.gr
+            </a>
+          </p>
+        </section>
       </div>
-    ))}
-  </Slider>
-
-  
-</section>
-
-<section><div className="view-all-container">
-  <Link to="/books" className="view-all-button">
-    📚 Δείτε όλα τα βιβλία
-  </Link>
-</div></section>
-
-
-      <section className="contact-section">
-        <h2 className="section-title">📬 Επικοινωνία</h2>
-        <p>
-          Έχεις απορίες ή χρειάζεσαι βοήθεια με την παραγγελία σου; 
-          Επικοινώνησε μαζί μας:
-        </p>
-        <p>
-          <a href="mailto:bookdelivery@app.gr" className="contact-email">
-            bookdelivery@app.gr
-          </a>
-        </p>
-      </section>
     </div>
   );
 };
 
 export default MainPage;
-
