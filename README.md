@@ -131,6 +131,8 @@ cd ../frontend && npm install
 # Start backend & frontend
 cd backend && npm run dev
 cd ../frontend && npm start
+
+To start the server you need to 
 ```
 
 ---
