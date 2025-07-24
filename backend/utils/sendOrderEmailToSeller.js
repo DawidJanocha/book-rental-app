@@ -3,17 +3,21 @@ import nodemailer from 'nodemailer';
 import dotenv from 'dotenv';
 dotenv.config();
 
+
+// Ρύθμιση του transporter για την αποστολή email μέσω Gmail
+// Χρησιμοποιούμε το nodemailer για να στείλουμε email στον πωλητή
+// Το email περιλαμβάνει πληροφορίες για την παραγγελία, υπολογίζει το συνολικό κόστος της παραγγελίας
 const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
-    user: process.env.EMAIL_USER,       // π.χ. myapp@gmail.com
-    pass: process.env.EMAIL_PASS        // Gmail App Password
+    user: process.env.EMAIL_USER,       
+    pass: process.env.EMAIL_PASS   
   },
     tls: {
     rejectUnauthorized: false // ⚠️ Accept self-signed certs
   }
 });
-
+// Έλεγχος αν η σύνδεση με το email είναι επιτυχής
 const sendOrderEmailToSeller = async ( {
   sellerEmail,
   storeName,

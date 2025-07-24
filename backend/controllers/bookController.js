@@ -6,14 +6,14 @@ import { generateOrderEmailHTML } from '../utils/orderEmailTemplate.js';
 import Store from '../models/Store.js';
 import Order from '../models/Order.js';
 // 📚 Προσθήκη νέου βιβλίου (Seller)
-// controllers/bookController.js
+
 
 export const addBook = async (req, res) => {
   try {
     const { title, author, description, price, quantity } = req.body;
     console.log("Body", req.body)
     console.log("User", req.user)
-    // 🔐 Βεβαιώσου ότι ο χρήστης είναι partner
+    //  Βεβαιώσου ότι ο χρήστης είναι partner
     if (req.user.role !== 'seller') {
       return res.status(403).json({ message: 'Μόνο συνεργάτες μπορούν να προσθέσουν βιβλία.' });
     }
@@ -24,7 +24,7 @@ export const addBook = async (req, res) => {
     if (!store) {
       return res.status(404).json({ message: 'Δεν βρέθηκε κατάστημα για αυτόν τον συνεργάτη.' });
     }
-    // 📦 Δημιουργία βιβλίου με σύνδεση στο κατάστημα
+    //  Δημιουργία βιβλίου με σύνδεση στο κατάστημα
     const newBook = new Book({
         title,
         author,
@@ -45,7 +45,7 @@ export const addBook = async (req, res) => {
   }
 };
 
-// ✅ Ενημέρωση βιβλίου από seller
+//  Ενημέρωση βιβλίου από seller
 
 export const updateBook = async (req, res) => {
   try {
@@ -109,7 +109,7 @@ export const updateBook = async (req, res) => {
   }
 };
 
-// 📚 Φέρνει τα πιο πρόσφατα προστιθέμενα βιβλία
+//  Φέρνει τα πιο πρόσφατα προστιθέμενα βιβλία
 export const getRecentBooks = async (req, res) => {
   try {
     const books = await Book.find({ available: true })
@@ -122,7 +122,7 @@ export const getRecentBooks = async (req, res) => {
 };
 
 
-// ⭐ Δημοφιλέστερα βιβλία με βάση πλήθος παραγγελιών
+//  Δημοφιλέστερα βιβλία με βάση πλήθος παραγγελιών
 export const getBestSellers = async (req, res) => {
   try {
     const bestSellers = await Order.aggregate([
@@ -174,7 +174,7 @@ export const getBooksByStore = async (req, res) => {
 
 
 
-// 📖 Επιστροφή μόνο των βιβλίων του seller
+//  Επιστροφή μόνο των βιβλίων του seller
 
 export const getMyBooks = async (req, res) => {
   try {
@@ -193,7 +193,7 @@ export const getMyBooks = async (req, res) => {
 };
 
 
-// 📚 Εμφάνιση όλων των διαθέσιμων βιβλίων για τους πελάτες
+//  Εμφάνιση όλων των διαθέσιμων βιβλίων για τους πελάτες
 export const getAvailableBooks = async (req, res) => {
   try {
     const books = await Book.find({ available: true })
@@ -211,7 +211,7 @@ export const getAvailableBooks = async (req, res) => {
 
 
 
-// ❌ Διαγραφή 1 βιβλίου (Seller)
+//  Διαγραφή 1 βιβλίου (Seller)
 export const deleteBook = async (req, res) => {
   try {
     const book = await Book.findOneAndDelete({ _id: req.params.id, seller: req.user._id });
@@ -222,7 +222,7 @@ export const deleteBook = async (req, res) => {
   }
 };
 
-// ❌ Μαζική διαγραφή όλων των βιβλίων (Seller)
+//  Μαζική διαγραφή όλων των βιβλίων (Seller)
 export const deleteAllBooks = async (req, res) => {
   try {
     await Book.deleteMany({ seller: req.user._id });
@@ -232,7 +232,7 @@ export const deleteAllBooks = async (req, res) => {
   }
 };
 
-// 🛒 Ενοικίαση 1 βιβλίου (δεν χρησιμοποιείται πια)
+//  Ενοικίαση 1 βιβλίου (δεν χρησιμοποιείται πια)
 export const rentBook = async (req, res) => {
   try {
     const bookId = req.params.bookId;
@@ -266,8 +266,25 @@ export const rentBook = async (req, res) => {
   }
 };
 
-// controllers/bookController.js
+//  Μαζική ενοικίαση βιβλίων (για πελάτες)
+export const deleteAllBooksForSeller = async (req, res) => {
+  try {
+    const store = await Store.findOne({ user: req.user._id });
+    if (!store) {
+      return res.status(404).json({ message: 'Δεν βρέθηκε κατάστημα' });
+    }
 
+    await Book.deleteMany({ store: store._id });
+
+    res.status(200).json({ message: 'Όλα τα βιβλία διαγράφηκαν' });
+  } catch (err) {
+    console.error('Σφάλμα στη μαζική διαγραφή:', err);
+    res.status(500).json({ message: 'Σφάλμα κατά τη διαγραφή των βιβλίων' });
+  }
+};
+
+//  Ενοικίαση πολλαπλών βιβλίων (για πελάτες)
+//  Αυτή η λειτουργία θα ενοποιήσει την ενοικίαση πολλών βιβλίων και την αποστολή email στον πελάτη και στους πωλητές
 export const rentMultipleBooks = async (req, res) => {
   try {
     const { books, comment } = req.body;
@@ -351,7 +368,7 @@ export const rentMultipleBooks = async (req, res) => {
   to: seller.email,
   subject: `📚 Νέα Παραγγελία για τα βιβλία σας`,
   html: generateOrderEmailHTML({
-    username: book.seller.username, // Αν το user.username δεν περνάει σωστά, δοκιμάστε αυτό
+    username: book.seller.username, 
     books: sellerBooks,
     comment,
     isCustomer: false,

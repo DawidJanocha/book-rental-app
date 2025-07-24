@@ -15,38 +15,34 @@ import { getOrderHistory } from '../controllers/orderController.js';
 
 const router = express.Router();
 
-// ✅ Δημιουργία παραγγελίας από πελάτη
+//  Δημιουργία παραγγελίας από πελάτη
 router.post('/complete', protect, isCustomer ,completeOrder, async (req, res) => {
   try {
     const { items, totalPrice, storeId, customerNote } = req.body;
     const customerId = req.user._id;
-
-    // 1. Group items by store
-    console.log("items", items);
+    //  Ομαδοποίηση items ανά κατάστημα
     const itemsByStore = {};
     items.forEach(item => {
-      // item.bookId must be present and item.store must be present
-      console.log("item.bookId", item.bookId);
+     
+      // Αν το κατάστημα δεν υπάρχει, το δημιουργούμε
       if (!itemsByStore[item.bookId.store._id]) itemsByStore[item.bookId.store._id] = [];
       itemsByStore[item.store].push(item);
     });
-    console.log("itemsByStore", itemsByStore);
-
     const orderResults = [];
 
-    // 2. For each store, create order and send email
+    //  Για κάθε κατάστημα, δημιουργούμε παραγγελία και στέλνουμε email
     for (const storeId of Object.keys(itemsByStore)) {
       const store = await Store.findById(storeId);
       if (!store) continue;
-
+      //  Εύρεση του χρήστη του καταστήματος
       const sellerUser = await User.findById(store.user);
       if (!sellerUser) continue;
-
+      //  Δημιουργία παραγγελίας
       const storeItems = itemsByStore[storeId];
 
-      // Calculate total for this store's items
+      //  Υπολογισμός συνολικής τιμής για το κατάστημα
       const storeTotal = storeItems.reduce((sum, i) => sum + (Number(i.price) * i.quantity), 0);
-
+    //  Δημιουργία παραγγελίας
     const newOrder = await Order.create({
         customer: customerId,
         store: storeId,
@@ -79,7 +75,7 @@ router.post('/complete', protect, isCustomer ,completeOrder, async (req, res) =>
     res.status(500).json({ message: 'Σφάλμα κατά την καταχώρηση παραγγελίας' });
   }
 });
-
+//  Προβολή παραγγελιών του πελάτη ή του seller
 router.get('/', protect, async (req, res) => {
   try {
     const { from, to } = req.query;
@@ -96,7 +92,7 @@ router.get('/', protect, async (req, res) => {
       return res.status(403).json({ message: 'Δεν έχεις πρόσβαση σε παραγγελίες' });
     }
 
-    // ➕ Χτίζουμε το φίλτρο createdAt μόνο αν υπάρχει τουλάχιστον ένα πεδίο
+    // φίλτρο createdAt μόνο αν υπάρχει τουλάχιστον ένα πεδίο
     if (from || to) {
       query.createdAt = {};
 
@@ -114,14 +110,14 @@ router.get('/', protect, async (req, res) => {
   }
 }
 
-
+// Αν υπάρχει to, ορίζουμε το τέλος της ημέρας
       if (to) {
         const endOfDay = new Date(to);
         endOfDay.setHours(23, 59, 59, 999);
         query.createdAt.$lte = endOfDay;
       }
     }
-
+//  Επιλογή πεδίου για populate ανάλογα με τον ρόλο του χρήστη
     const populateField =
       req.user.role === 'customer'
         ? { path: 'store', select: 'storeName' }
@@ -130,7 +126,7 @@ router.get('/', protect, async (req, res) => {
             select:
               'username customerRegion customerStreetAddress customerFloor customerDoorbell customerMobilePhone',
           };
-
+//  Ανάκτηση παραγγελιών με βάση το query
     const orders = await Order.find(query)
       .sort({ createdAt: -1 })
       .populate(populateField);
@@ -146,12 +142,12 @@ router.get('/', protect, async (req, res) => {
 
 
 
-// ✅ Επιβεβαίωση παραγγελίας από Selller
+//Επιβεβαίωση παραγγελίας από Selller
 router.put('/confirm/:orderId', protect, isSeller, confirmOrderBySeller,  async (req, res) => {
   try {
     const { orderId } = req.params;
     const { estimatedDeliveryTime } = req.body;
-
+//  Εύρεση παραγγελίας και χρήστη
     const order = await Order.findById(orderId)
       .populate('customer')
       .populate('store');
@@ -189,7 +185,7 @@ router.put('/confirm/:orderId', protect, isSeller, confirmOrderBySeller,  async 
     res.status(500).json({ message: 'Σφάλμα κατά την επιβεβαίωση' });
   }
 });
-
+// Άρνηση παραγγελίας από τον seller
 router.put('/deny/:orderId', protect, isSeller, denyOrderBySeller,  async (req, res) => {
   try {
     const { orderId } = req.params;
@@ -199,8 +195,8 @@ router.put('/deny/:orderId', protect, isSeller, denyOrderBySeller,  async (req, 
       .populate('store');
 
     if (!order) return res.status(404).json({ message: 'Η παραγγελία δεν βρέθηκε' });
-
-    if (req.user.role !== 'partner') return res.status(403).json({ message: 'Μόνο συνεργάτες μπορούν να επιβεβαιώσουν παραγγελίες' });
+//  Έλεγχος δικαιωμάτων
+    if (req.user.role !== 'seller') return res.status(403).json({ message: 'Μόνο συνεργάτες μπορούν να επιβεβαιώσουν παραγγελίες' });
     if (order.store.user.toString() !== req.user._id.toString()) return res.status(403).json({ message: 'Δεν έχεις πρόσβαση σε αυτή την παραγγελία' });
 
     await order.save();
@@ -228,7 +224,7 @@ router.put('/deny/:orderId', protect, isSeller, denyOrderBySeller,  async (req, 
     res.status(500).json({ message: 'Σφάλμα κατά την επιβεβαίωση' });
   }
 });
-
+// Προβολή παραγγελιών του seller
 router.get('/seller', protect, getSellerOrders);
 
 export default router;

@@ -5,27 +5,27 @@ import xlsx from 'xlsx';
 import Book from '../models/Book.js';
 import Store from '../models/Store.js';
 
-// 📁 Ρύθμιση Multer για file uploads (από μνήμη, όχι δίσκο)
+//  Ρύθμιση Multer για file uploads (από μνήμη, όχι δίσκο)
 const storage = multer.memoryStorage();
 export const upload = multer({ storage }).single('file');
 
-// 📥 Bulk import βιβλίων
+//  Bulk import βιβλίων
 export const bulkImportBooks = async (req, res) => {
   try {
     const sellerId = req.user._id;
 
-    // ➤ Βρες το κατάστημα του seller
+    //  Βρες το κατάστημα του seller
     const store = await Store.findOne({ user: sellerId });
     if (!store) {
       return res.status(400).json({ message: 'Δεν βρέθηκε κατάστημα για αυτόν τον χρήστη.' });
     }
 
-    // ➤ Ανέβηκε αρχείο;
+    //  Ανέβηκε αρχείο;
     if (!req.file) {
       return res.status(400).json({ message: 'Δεν βρέθηκε αρχείο.' });
     }
 
-    // ➤ Ανάγνωση τύπου αρχείου
+    //  Ανάγνωση τύπου αρχείου
     const buffer = req.file.buffer;
     const fileType = req.file.originalname.split('.').pop().toLowerCase();
 
@@ -52,7 +52,7 @@ export const bulkImportBooks = async (req, res) => {
         return value.toString();
       };
 
-    // ➤ Προετοιμασία βιβλίων με καθαρισμένα δεδομένα
+    // Προετοιμασία βιβλίων με καθαρισμένα δεδομένα
     const preparedBooks = books
       .filter(book => book.title && book.quantity !== undefined)
       .map(book => ({
@@ -70,7 +70,7 @@ export const bulkImportBooks = async (req, res) => {
       return res.status(400).json({ message: 'Δεν βρέθηκαν έγκυρα βιβλία για εισαγωγή.' });
     }
 
-    // ➤ Μαζική εισαγωγή
+    //  Μαζική εισαγωγή
     await Book.insertMany(preparedBooks);
 
     res.status(200).json({

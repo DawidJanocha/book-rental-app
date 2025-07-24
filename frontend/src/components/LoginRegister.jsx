@@ -4,7 +4,7 @@ import axios from '../utils/axiosInstance';
 import { useNavigate } from 'react-router-dom';
 
 const LoginRegister = ({ onLoginSuccess, closeModal }) => {
-  // 🔐 States για input πεδία
+  // ΔΗΛΩΝΟΥΜΕ STATES ΓΙΑ ΤΑ INPUT ΠΕΔΙΑ ΤΟΥ LOGIN / REGISTER
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [username, setUsername] = useState('');
@@ -13,7 +13,7 @@ const LoginRegister = ({ onLoginSuccess, closeModal }) => {
 
   const navigate = useNavigate();
 
-  // 🚀 Handle form submission
+  // ΣΥΝΑΡΤΗΣΗ ΥΠΟΒΟΛΗΣ ΦΟΡΜΑΣ (LOGIN Ή REGISTER)
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -25,29 +25,29 @@ const LoginRegister = ({ onLoginSuccess, closeModal }) => {
     try {
       const response = await axios.post(endpoint, payload);
 
-      // ✅ Εγγραφή επιτυχής
+      // ΑΝ ΓΙΝΕΤΑΙ REGISTER ΚΑΙ ΕΙΝΑΙ ΕΠΙΤΥΧΕΣ
       if (isRegister && response.status === 201) {
         alert('✅ Εγγραφή επιτυχής. Συνδέσου τώρα!');
         setIsRegister(false);
         return;
       }
 
-      // ✅ Σύνδεση επιτυχής
+      // ΑΝ ΓΙΝΕΤΑΙ LOGIN
       const { token, user } = response.data;
+
+      // ΑΠΟΘΗΚΕΥΟΥΜΕ ΤΑ ΣΤΟΙΧΕΙΑ ΣΤΟ LOCALSTORAGE
       localStorage.setItem('token', token);
       localStorage.setItem('role', user.role);
       localStorage.setItem('username', user.username);
       localStorage.setItem('email', user.email);
 
-      console.log(`🔐 Σύνδεση χρήστη: ${user.username} | Ρόλος: ${user.role} | Email: ${user.email}`);
-
-      // 🔄 Κλείσιμο modal (αν υπάρχει)
+      // ΚΛΕΙΝΟΥΜΕ MODAL ΑΝ ΥΠΑΡΧΕΙ
       if (closeModal) closeModal();
 
-      // ✅ Ενημέρωση γονικού (Navbar)
+      // ΕΝΗΜΕΡΩΝΟΥΜΕ ΤΟΝ ΓΟΝΙΚΟ COMPONENT ΟΤΙ ΕΓΙΝΕ ΣΥΝΔΕΣΗ
       if (onLoginSuccess) onLoginSuccess();
 
-      // 🔁 Redirect ανάλογα με τον ρόλο
+      // ΚΑΝΟΥΜΕ REDIRECT ΜΕ ΒΑΣΗ ΤΟΝ ΡΟΛΟ
       if (user.role === 'customer') {
         navigate('/customer');
       } else if (user.role === 'seller') {
@@ -69,13 +69,16 @@ const LoginRegister = ({ onLoginSuccess, closeModal }) => {
       borderRadius: 10,
       backgroundColor: '#f9f9f9'
     }}>
+      {/* ΤΙΤΛΟΣ ΠΑΝΩ ΑΠΟ ΤΗ ΦΟΡΜΑ */}
       <h2 style={{ textAlign: 'center', marginBottom: 20 }}>
         {isRegister ? '📝 Εγγραφή' : '🔐 Σύνδεση'}
       </h2>
 
+      {/* ΦΟΡΜΑ ΣΥΝΔΕΣΗΣ Ή ΕΓΓΡΑΦΗΣ */}
       <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column' }}>
         {isRegister && (
           <>
+            {/* ΠΕΔΙΟ ΟΝΟΜΑ ΧΡΗΣΤΗ (ΜΟΝΟ ΣΤΗΝ ΕΓΓΡΑΦΗ) */}
             <input
               type="text"
               placeholder="Όνομα χρήστη"
@@ -85,6 +88,7 @@ const LoginRegister = ({ onLoginSuccess, closeModal }) => {
               style={{ marginBottom: 10, padding: 10 }}
             />
 
+            {/* ΕΠΙΛΟΓΗ ΡΟΛΟΥ */}
             <select
               value={role}
               onChange={(e) => setRole(e.target.value)}
@@ -96,6 +100,7 @@ const LoginRegister = ({ onLoginSuccess, closeModal }) => {
           </>
         )}
 
+        {/* ΠΕΔΙΟ EMAIL */}
         <input
           type="email"
           placeholder="Email"
@@ -105,6 +110,7 @@ const LoginRegister = ({ onLoginSuccess, closeModal }) => {
           style={{ marginBottom: 10, padding: 10 }}
         />
 
+        {/* ΠΕΔΙΟ ΚΩΔΙΚΟΣ */}
         <input
           type="password"
           placeholder="Κωδικός"
@@ -114,6 +120,7 @@ const LoginRegister = ({ onLoginSuccess, closeModal }) => {
           style={{ marginBottom: 20, padding: 10 }}
         />
 
+        {/* ΚΟΥΜΠΙ ΥΠΟΒΟΛΗΣ ΦΟΡΜΑΣ */}
         <button
           type="submit"
           style={{
@@ -128,7 +135,7 @@ const LoginRegister = ({ onLoginSuccess, closeModal }) => {
         </button>
       </form>
 
-      {/* 🔄 Εναλλαγή σύνδεσης/εγγραφής */}
+      {/* ΚΟΥΜΠΙ ΕΝΑΛΛΑΓΗΣ ΣΕ ΣΥΝΔΕΣΗ / ΕΓΓΡΑΦΗ */}
       <button
         onClick={() => setIsRegister(!isRegister)}
         style={{

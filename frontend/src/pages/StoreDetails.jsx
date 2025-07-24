@@ -2,12 +2,17 @@ import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import axios from '../utils/axiosInstance';
 
+
+// Σελίδα προβολής λεπτομερειών καταστήματος
+// Εμφανίζει πληροφορίες για το κατάστημα και τα διαθέσιμα βιβλία του
 const StoreDetails = () => {
   const { storeId } = useParams();
   const [store, setStore] = useState(null);
   const [books, setBooks] = useState([]);
   const [loading, setLoading] = useState(true);
 
+
+  // Φόρτωση λεπτομερειών καταστήματος και βιβλίων
   useEffect(() => {
     const fetchStoreDetails = async () => {
       try {
@@ -18,6 +23,8 @@ const StoreDetails = () => {
       }
     };
 
+
+    // Φόρτωση βιβλίων του καταστήματος
     const fetchStoreBooks = async () => {
       try {
         const res = await axios.get(`/books/store/${storeId}`);
@@ -26,7 +33,7 @@ const StoreDetails = () => {
         console.error('Σφάλμα κατά την ανάκτηση βιβλίων καταστήματος:', error);
       }
     };
-
+    // Καλούμε τις συναρτήσεις φόρτωσης
     Promise.all([fetchStoreDetails(), fetchStoreBooks()]).finally(() =>
       setLoading(false)
     );

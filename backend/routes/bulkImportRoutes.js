@@ -5,7 +5,7 @@ import { protect, isSeller } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
 
-// ✅ Route για μαζική εισαγωγή αρχείου βιβλίων (μόνο για seller)
+// Route για μαζική εισαγωγή αρχείου βιβλίων (μόνο για seller)
 router.post('/upload', protect, isSeller, upload, bulkImportBooks);
 
 export default router;

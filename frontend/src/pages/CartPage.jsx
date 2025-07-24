@@ -7,6 +7,7 @@ import axios from '../utils/axiosInstance';
 import { FaMinus, FaPlus, FaTrash } from 'react-icons/fa';
 
 const CartPage = () => {
+  // ΠΡΟΣΠΕΛΑΣΗ ΤΟΥ CONTEXT ΤΟΥ ΚΑΛΑΘΙΟΥ
   const {
     cartItems,
     removeFromCart,
@@ -14,8 +15,8 @@ const CartPage = () => {
     clearCart,
     getCartTotal,
   } = useCart();
-  console.log(cartItems); // Πίνακας με name, price, quantity κ.λπ.
 
+  // STATES ΓΙΑ ΤΗΝ ΠΑΡΑΓΓΕΛΙΑ
   const [comments, setComments] = useState('');
   const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(false);
@@ -24,11 +25,13 @@ const CartPage = () => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [customerComment, setCustomerComment] = useState('');
 
+  // ΥΠΟΛΟΓΙΣΜΟΣ ΣΥΝΟΛΟΥ ΠΑΡΑΓΓΕΛΙΑΣ
   const total =
     typeof getCartTotal === 'function'
       ? Number(getCartTotal()) || 0
       : cartItems.reduce((acc, item) => acc + item.rentalPrice * item.quantity, 0);
 
+  // ΧΕΙΡΙΣΜΟΣ ΑΛΛΑΓΗΣ ΠΟΣΟΤΗΤΑΣ ΠΡΟΪΟΝΤΟΣ
   const handleQuantityChange = (productId, delta) => {
     const item = cartItems.find((item) => item._id === productId);
     if (!item) return;
@@ -42,6 +45,7 @@ const CartPage = () => {
     }
   };
 
+  // ΥΠΟΒΟΛΗ ΠΑΡΑΓΓΕΛΙΑΣ
   const handleCheckout = async () => {
     if (cartItems.length === 0) {
       setErrorMessage('Το καλάθι είναι άδειο.');
@@ -61,10 +65,9 @@ const CartPage = () => {
       }
 
       const storeId = cartItems[0]?.storeId;
-      console.log("cartItems",cartItems)
 
       const items = cartItems.map((item) => ({
-        bookId: item._id, // ✅ Σωστό όνομα πεδίου
+        bookId: item._id,
         title: item.title,
         price: Number(item.rentalPrice),
         quantity: item.quantity,
@@ -94,7 +97,6 @@ const CartPage = () => {
         setErrorMessage('Κάτι πήγε στραβά κατά την παραγγελία.');
       }
     } catch (error) {
-      console.error('Σφάλμα κατά την ολοκλήρωση παραγγελίας:', error);
       setErrorMessage('Σφάλμα κατά την παραγγελία.');
     } finally {
       setIsProcessing(false);
@@ -118,6 +120,8 @@ const CartPage = () => {
                 💰 Τιμή:{' '}
                 {item.price !== undefined ? `${Number(item.rentalPrice).toFixed(2)} €` : 'Χωρίς τιμή'}
               </p>
+
+              {/* ΠΛΗΚΤΡΑ ΑΛΛΑΓΗΣ ΠΟΣΟΤΗΤΑΣ */}
               <div className="quantity-control" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <span>📦 Ποσότητα:</span>
                 <button
@@ -163,6 +167,8 @@ const CartPage = () => {
                   <FaPlus />
                 </button>
               </div>
+
+              {/* ΚΟΥΜΠΙ ΑΦΑΙΡΕΣΗΣ ΑΠΟ ΤΟ ΚΑΛΑΘΙ */}
               <button
                 className="remove-button"
                 onClick={() => removeFromCart(item._id)}
@@ -172,6 +178,7 @@ const CartPage = () => {
             </div>
           ))}
 
+          {/* ΠΕΡΙΛΗΨΗ ΠΑΡΑΓΓΕΛΙΑΣ */}
           <div className="cart-summary">
             <p>🧾 Προϊόντα: {cartItems.length}</p>
             <p>💶 Σύνολο: {total.toFixed(2)} €</p>
@@ -187,6 +194,8 @@ const CartPage = () => {
             >
               {isProcessing ? '⏳ Επεξεργασία...' : '✅ Ολοκλήρωση Παραγγελίας'}
             </button>
+
+            {/* ΜΗΝΥΜΑΤΑ ΕΠΙΤΥΧΙΑΣ / ΣΦΑΛΜΑΤΟΣ */}
             {successMessage && (
               <p className="success-message">{successMessage}</p>
             )}

@@ -1,3 +1,8 @@
+
+// backend/utils/verificationTemplate.js
+
+// Συνάρτηση για τη δημιουργία του HTML περιεχομένου του email επιβεβαίωσης
+// Περιλαμβάνει το όνομα χρήστη και τον σύνδεσμο επιβεβαίωσης
 export const getVerificationEmailHtml = (username, verificationLink) => {
   return `
     <div style="font-family: Arial, sans-serif; padding: 20px; background-color: #f5f5f5;">

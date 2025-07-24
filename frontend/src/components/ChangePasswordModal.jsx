@@ -1,41 +1,47 @@
 import React, { useState } from 'react';
 import axios from '../utils/axiosInstance';
-import './UserDetailsModal.css'; // Χρησιμοποιούμε το ίδιο CSS με το UserDetailsModal
+import './UserDetailsModal.css'; // ΧΡΗΣΙΜΟΠΟΙΟΥΜΕ ΤΟ ΙΔΙΟ CSS ΜΕ ΤΟ USERDETAILSMODAL
 
+// MODAL ΓΙΑ ΑΛΛΑΓΗ ΚΩΔΙΚΟΥ ΧΡΗΣΤΗ
 const ChangePasswordModal = ({ isOpen, onClose }) => {
+  // STATE ΓΙΑ ΠΑΛΙΟ ΚΑΙ ΝΕΟ ΚΩΔΙΚΟ
   const [passwords, setPasswords] = useState({
     oldPassword: '',
     newPassword: '',
   });
 
-  const [message, setMessage] = useState('');
+  const [message, setMessage] = useState(''); // ΜΗΝΥΜΑ ΕΠΙΤΥΧΙΑΣ Η ΑΠΟΤΥΧΙΑΣ
 
+  // ΕΝΗΜΕΡΩΣΗ STATE ΚΑΘΩΣ ΠΛΗΚΤΡΟΛΟΓΕΙ Ο ΧΡΗΣΤΗΣ
   const handleChange = (e) => {
     setPasswords({ ...passwords, [e.target.name]: e.target.value });
   };
 
+  // ΑΠΟΣΤΟΛΗ ΝΕΩΝ ΚΩΔΙΚΩΝ ΣΤΟ BACKEND
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       await axios.put('/user/password', passwords);
-      setMessage('✅ Ο κωδικός άλλαξε επιτυχώς.');
+      setMessage('Ο ΚΩΔΙΚΟΣ ΑΛΛΑΞΕ ΕΠΙΤΥΧΩΣ');
       setPasswords({ oldPassword: '', newPassword: '' });
     } catch (err) {
-      setMessage('❌ Σφάλμα στην αλλαγή κωδικού.');
+      setMessage('ΣΦΑΛΜΑ ΣΤΗΝ ΑΛΛΑΓΗ ΚΩΔΙΚΟΥ');
     }
   };
 
+  // ΑΝ ΤΟ MODAL ΔΕΝ ΕΙΝΑΙ ΑΝΟΙΧΤΟ, ΜΗΝ ΔΕΙΞΕΙ ΤΙΠΟΤΑ
   if (!isOpen) return null;
 
+  // ΕΜΦΑΝΙΣΗ ΤΟΥ MODAL
   return (
     <div className="modal-overlay">
       <div className="modal-content">
-        <h2>Αλλαγή Κωδικού</h2>
+        <h2>ΑΛΛΑΓΗ ΚΩΔΙΚΟΥ</h2>
 
         {message && <p className="user-profile-message">{message}</p>}
 
         <form onSubmit={handleSubmit} className="user-profile-form">
-          <label>Τρέχων Κωδικός:</label>
+          <label>ΤΡΕΧΩΝ ΚΩΔΙΚΟΣ:</label>
           <input
             type="password"
             name="oldPassword"
@@ -44,7 +50,7 @@ const ChangePasswordModal = ({ isOpen, onClose }) => {
             required
           />
 
-          <label>Νέος Κωδικός:</label>
+          <label>ΝΕΟΣ ΚΩΔΙΚΟΣ:</label>
           <input
             type="password"
             name="newPassword"
@@ -53,11 +59,11 @@ const ChangePasswordModal = ({ isOpen, onClose }) => {
             required
           />
 
-          <button type="submit">Αλλαγή Κωδικού</button>
+          <button type="submit">ΑΛΛΑΓΗ ΚΩΔΙΚΟΥ</button>
         </form>
 
         <button onClick={onClose} style={{ marginTop: '1rem' }}>
-          Κλείσιμο
+          ΚΛΕΙΣΙΜΟ
         </button>
       </div>
     </div>

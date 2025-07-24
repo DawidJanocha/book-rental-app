@@ -12,7 +12,7 @@ export const useCart = () => useContext(CartContext);
 export const CartProvider = ({ children }) => {
   const [cartItems, setCartItems] = useState([]);
 
-  // 👉 Φόρτωση από localStorage κατά το mount
+  // Φόρτωση από localStorage κατά το mount
   useEffect(() => {
     const saved = localStorage.getItem('cart');
     if (saved) {
@@ -20,17 +20,20 @@ export const CartProvider = ({ children }) => {
     }
   }, []);
 
-  // 👉 Αποθήκευση στο localStorage όταν αλλάζει το καλάθι
+  //  Αποθήκευση στο localStorage όταν αλλάζει το καλάθι
   useEffect(() => {
     localStorage.setItem('cart', JSON.stringify(cartItems));
   }, [cartItems]);
 
-  // ➕ Προσθήκη προϊόντος
+  // Προσθήκη βιβλίου στο καλάθι
+  // Ελέγχουμε αν το storeId και το rentalPrice είναι έγκυρα
  const addToCart = (book) => {
   setCartItems((prevItems) => {
     const existingItem = prevItems.find((item) => item._id === book._id);
-    console.log('Προσθήκη προϊόντος:', book);
+    console.log('Προσθήκη βιβλίου:', book);
 
+
+// Ελέγχουμε αν το storeId είναι έγκυρο
     const validStoreId =
       typeof book.storeId === 'string' && book.storeId.length === 24
         ? book.storeId
@@ -44,11 +47,15 @@ export const CartProvider = ({ children }) => {
       return prevItems;
     }
 
+
+// Ελέγχουμε αν το rentalPrice είναι έγκυρο
     const rawPrice =
       typeof book.rentalPrice === 'object' && book.rentalPrice !== null
         ? parseFloat(book.rentalPrice.$numberDecimal || 0)
         : parseFloat(book.rentalPrice || 0);
 
+
+// Ελέγχουμε αν το rawPrice είναι έγκυρο
     const available = Number(book.quantity);
 
     if (existingItem) {
@@ -65,7 +72,7 @@ export const CartProvider = ({ children }) => {
           : item
       );
     } else {
-      // If new, add with quantity 1
+      // Επιστρέφουμε νέο αντικείμενο με έγκυρο storeId και rentalPrice
       return [
         ...prevItems,
         {
@@ -81,17 +88,17 @@ export const CartProvider = ({ children }) => {
 
 
 
-  // ➖ Αφαίρεση προϊόντος
+  // Αφαίρεση προϊόντος
   const removeFromCart = (id) => {
     setCartItems((prev) => prev.filter((item) => item._id !== id));
   };
 
-  // ❌ Καθαρισμός καλαθιού
+  // Καθαρισμός καλαθιού
   const clearCart = () => {
     setCartItems([]);
   };
 
-  // 🔁 Ενημέρωση ποσότητας
+  // Ενημέρωση ποσότητας
   const updateQuantity = (bookId, amount, available) => {
     setCartItems((prevItems) =>
       prevItems.map((item) => {
@@ -106,7 +113,8 @@ export const CartProvider = ({ children }) => {
       })
     );
   };
-
+// Ενημέρωση ποσότητας στο καλάθι
+// Ελέγχουμε αν το productId είναι έγκυρο
   const updateQuantityCart = (productId, delta) => {
   setCartItems((prevItems) =>
     prevItems.map((item) =>
@@ -117,7 +125,7 @@ export const CartProvider = ({ children }) => {
   );
 };
 
-  // 💰 Υπολογισμός συνολικού κόστους
+  // Υπολογισμός συνολικού κόστους
   const getCartTotal = () => {
     return cartItems
       .reduce((total, item) => total + (item.rentalPrice || 0) * item.quantity, 0)

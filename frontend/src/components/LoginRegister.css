@@ -1,3 +1,4 @@
+/* ΣΤΥΛ ΓΙΑ ΤΟ ΦΟΝΤΟ ΤΟΥ MODAL */
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -11,6 +12,7 @@
   z-index: 999;
 }
 
+/* ΚΕΝΤΡΙΚΟ ΚΟΥΤΙ ΤΟΥ MODAL */
 .modal-content {
   background: white;
   padding: 2rem;
@@ -20,10 +22,12 @@
   flex-direction: column;
 }
 
+/* ΣΤΥΛ ΓΙΑ ΤΟΝ ΤΙΤΛΟ ΤΟΥ MODAL */
 .modal-content h2 {
   margin-bottom: 1rem;
 }
 
+/* ΣΤΥΛ ΓΙΑ INPUTS ΚΑΙ SELECTS ΜΕΣΑ ΣΤΟ MODAL */
 .modal-content input,
 .modal-content select {
   margin-bottom: 0.8rem;
@@ -31,6 +35,7 @@
   font-size: 1rem;
 }
 
+/* ΣΤΥΛ ΓΙΑ ΤΑ ΚΟΥΜΠΙΑ ΜΕΣΑ ΣΤΟ MODAL */
 .modal-content button {
   padding: 0.6rem;
   margin-top: 0.5rem;
@@ -38,6 +43,7 @@
   cursor: pointer;
 }
 
+/* ΣΤΥΛ ΓΙΑ ΤΟ ΚΟΥΜΠΙ ΕΝΑΛΛΑΓΗΣ LOGIN / REGISTER */
 .toggle-btn {
   background: none;
   border: none;
@@ -46,6 +52,7 @@
   margin-top: 0.8rem;
 }
 
+/* ΣΤΥΛ ΓΙΑ ΤΟ ΚΟΥΜΠΙ ΚΛΕΙΣΙΜΑΤΟΣ */
 .close-btn {
   background: #f44336;
   color: white;

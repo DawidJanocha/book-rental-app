@@ -6,13 +6,13 @@ dotenv.config();
 
 // Ρύθμιση του transporter για την αποστολή email μέσω Gmail
 const transporter = nodemailer.createTransport({
-  service: 'gmail', // Ανάλογα με την υπηρεσία που θέλεις να χρησιμοποιήσεις
+  service: 'gmail', 
   auth: {
-    user: process.env.EMAIL_USER, // Email που χρησιμοποιούμε για να στείλουμε
-    pass: process.env.EMAIL_PASS, // Κωδικός πρόσβασης του email
+    user: process.env.EMAIL_USER, 
+    pass: process.env.EMAIL_PASS, 
   },
   tls: {
-    rejectUnauthorized: false, // Απαραίτητο για self-signed certificates
+    rejectUnauthorized: false, 
   },
 });
 
@@ -33,7 +33,7 @@ export const sendEmail = async (options) => {
 
   try {
     const mailOptions = {
-      from: `"BookLibrary App" <${process.env.EMAIL_USER}>`, // Στέλνουμε το email από το χρήστη που ορίζεται
+      from: `"BookLibrary App" <${process.env.EMAIL_USER}>`, 
       to: options.to,
       subject: options.subject,
       html: options.html, // HTML περιεχόμενο του email

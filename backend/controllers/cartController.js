@@ -7,7 +7,7 @@ import sendOrderEmailToSeller from '../utils/sendOrderEmailToSeller.js';
 import sendOrderEmailToCustomer from '../utils/sendOrderEmailToCustomer.js';
 
 
-// ✅ Δημιουργία παραγγελίας για πολλαπλά καταστήματα
+// Δημιουργία παραγγελίας για πολλαπλά καταστήματα
 export const completeOrder = async (req, res) => {
   try {
     const {
@@ -23,25 +23,25 @@ export const completeOrder = async (req, res) => {
     const user = await User.findById(req.user._id);
     const customer = await UserDetails.findOne({ user: req.user._id });
 
-    // 1. Group items by store
+    
     console.log("items", items);
     const itemsByStore = {};
 
 for (const item of items) {
-  // Fetch the book to get its store
+
   const book = await Book.findById(item.bookId).select('store');
   if (!book || !book.store) {
     throw new Error('Το προϊόν δεν έχει κατάστημα');
   }
   const storeId = book.store.toString();
   if (!itemsByStore[storeId]) itemsByStore[storeId] = [];
-  // Attach storeId to item for later use if needed
+  // Προσθήκη του item στο κατάστημα
   itemsByStore[storeId].push({ ...item, store: storeId });
 }
 
     const orderResults = [];
 
-    // 2. For each store, create order and send email
+    //  For each store, create order and send email
     for (const storeId of Object.keys(itemsByStore)) {
       const store = await Store.findById(storeId);
       if (!store) continue;
@@ -89,7 +89,7 @@ for (const item of items) {
         },
       };
 
-      // ✅ Στέλνουμε email στον SELLER
+      //  Στέλνουμε email στον SELLER
       await sendOrderEmailToSeller(objToSendOrderToSeller);
 
       orderResults.push({ orderId: newOrder._id, store: store.storeName });
@@ -102,7 +102,7 @@ for (const item of items) {
   }
 };
 
-// ✅ Λήψη παραγγελιών πελάτη
+//  Λήψη παραγγελιών πελάτη
 export const getMyOrders = async (req, res) => {
   try {
     const orders = await Order.find({ customer: req.user._id })
@@ -116,7 +116,7 @@ export const getMyOrders = async (req, res) => {
   }
 };
 
-// ✅ Επιβεβαίωση παραγγελίας από seller + αποστολή email στον customer
+// Επιβεβαίωση παραγγελίας από seller + αποστολή email στον customer
 export const confirmOrder = async (req, res) => {
   try {
     const { orderId } = req.params;
@@ -142,7 +142,7 @@ export const confirmOrder = async (req, res) => {
       timeStyle: 'short',
     });
 
-    // ✅ Στέλνουμε email στον CUSTOMER
+    //  Στέλνουμε email στον CUSTOMER
     await sendOrderEmailToCustomer({
       customerEmail: order.customer.email,
       username: order.customer.username,

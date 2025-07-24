@@ -10,8 +10,10 @@ const Navbar = ({ onLoginClick }) => {
   const { cartItems } = useCart();
   const { user, logout } = useContext(AuthContext);
 
+  // ΚΡΑΤΑΜΕ ΚΑΤΑΣΤΑΣΗ ΓΙΑ ΝΑ ΔΕΙΧΝΟΥΜΕ Η ΟΧΙ ΤΟ DROPDOWN
   const [showDropdown, setShowDropdown] = useState(false);
 
+  // ΕΛΕΓΧΟΥΜΕ ΑΝ Η URL ΠΕΡΙΕΧΕΙ login=1 ΓΙΑ ΝΑ ΑΝΟΙΞΕΙ ΤΟ MODAL
   useEffect(() => {
     if (new URLSearchParams(location.search).get('login') === '1') {
       onLoginClick();
@@ -19,6 +21,7 @@ const Navbar = ({ onLoginClick }) => {
     }
   }, [location, onLoginClick]);
 
+  // LOGOUT ΤΟΥ ΧΡΗΣΤΗ
   const handleLogout = () => {
     logout();
     setShowDropdown(false);
@@ -28,31 +31,38 @@ const Navbar = ({ onLoginClick }) => {
   return (
     <>
       <nav style={styles.navbar}>
+        {/* ΛΟΓΟΤΥΠΟ ΠΟΥ ΚΑΝΕΙ REDIRECT ΣΤΗΝ ΑΡΧΙΚΗ */}
         <div style={styles.logo} onClick={() => navigate('/')}>
           📚 Bookshop App
         </div>
 
         <div style={styles.rightSection}>
+          {/* ΑΝ ΔΕΝ ΕΙΝΑΙ ΣΥΝΔΕΔΕΜΕΝΟΣ Ο ΧΡΗΣΤΗΣ */}
           {!user && (
             <button onClick={onLoginClick} style={styles.button}>
               🔐 Σύνδεση / Εγγραφή
             </button>
           )}
 
+          {/* ΑΝ ΕΙΝΑΙ ΣΥΝΔΕΔΕΜΕΝΟΣ */}
           {user && (
             <>
+              {/* ΠΛΗΚΤΡΟ ΒΙΒΛΙΑ */}
               <button onClick={() => navigate('/books')} style={styles.button}>
                 📖 Βιβλία
               </button>
 
+              {/* ΑΝ ΕΙΝΑΙ CUSTOMER, ΔΕΙΧΝΟΥΜΕ ΚΑΛΑΘΙ */}
               {user.role === 'customer' && (
                 <button onClick={() => navigate('/cart')} style={styles.button}>
                   🛒 Καλάθι ({cartItems.reduce((sum, item) => sum + item.quantity, 0)})
                 </button>
               )}
 
+              {/* ΠΡΟΒΟΛΗ USERNAME */}
               <span style={styles.username}>👤 {user.username}</span>
 
+              {/* BURGER MENU ΓΙΑ ΠΡΟΦΙΛ / ΠΙΝΑΚΑ / ΑΠΟΣΥΝΔΕΣΗ */}
               <div style={styles.burgerWrapper}>
                 <div style={styles.burger} onClick={() => setShowDropdown((prev) => !prev)}>
                   <div style={styles.line}></div>
@@ -60,6 +70,7 @@ const Navbar = ({ onLoginClick }) => {
                   <div style={styles.line}></div>
                 </div>
 
+                {/* DROPDOWN ΜΕΝΟΥ */}
                 {showDropdown && (
                   <div style={styles.dropdown}>
                     {user.role === 'customer' && (
@@ -91,6 +102,7 @@ const Navbar = ({ onLoginClick }) => {
   );
 };
 
+// ΣΤΥΛ ΓΙΑ ΤΟ NAVBAR ΚΑΙ ΤΑ ΕΞΑΡΤΩΜΕΝΑ ΣΤΟΙΧΕΙΑ
 const styles = {
   navbar: {
     display: 'flex',
@@ -164,3 +176,4 @@ const styles = {
 };
 
 export default Navbar;
+

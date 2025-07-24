@@ -9,14 +9,17 @@ import 'swiper/css/navigation';
 import { Pagination, Autoplay } from 'swiper/modules';
 
 const MainPage = () => {
+  // ΚΡΑΤΑΜΕ ΤΙΣ ΠΡΟΣΦΑΤΕΣ ΚΑΙ BEST SELLER ΚΥΚΛΟΦΟΡΙΕΣ
   const [recentBooks, setRecentBooks] = useState([]);
   const [bestSellers, setBestSellers] = useState([]);
 
+  // ΦΟΡΤΩΝΟΥΜΕ ΔΕΔΟΜΕΝΑ ΟΤΑΝ ΦΟΡΤΩΝΕΙ Η ΣΕΛΙΔΑ
   useEffect(() => {
     fetchRecentBooks();
     fetchBestSellers();
   }, []);
 
+  // ΦΕΡΝΕΙ ΟΛΑ ΤΑ ΒΙΒΛΙΑ ΚΑΙ ΦΙΛΤΡΑΡΕΙ ΤΑ ΤΕΛΕΥΤΑΙΑ 48 ΩΡΩΝ
   const fetchRecentBooks = async () => {
     try {
       const response = await axios.get('/books');
@@ -32,6 +35,7 @@ const MainPage = () => {
     }
   };
 
+  // ΦΕΡΝΕΙ ΤΑ BEST SELLERS ΑΠΟ ΤΟ BACKEND
   const fetchBestSellers = async () => {
     try {
       const response = await axios.get('/books/best-sellers');
@@ -41,6 +45,7 @@ const MainPage = () => {
     }
   };
 
+  // ΕΛΕΓΧΕΙ ΑΝ ΤΟ ΒΙΒΛΙΟ ΕΙΝΑΙ ΝΕΟ (ΚΑΤΩ ΑΠΟ 48 ΩΡΕΣ)
   const isNewBook = (createdAt) => {
     const now = new Date();
     const bookDate = new Date(createdAt);
@@ -48,6 +53,7 @@ const MainPage = () => {
     return diffInHours <= 48;
   };
 
+  // ΚΑΡΤΑ ΒΙΒΛΙΟΥ ΠΟΥ ΠΡΟΒΑΛΛΕΤΑΙ ΣΕ SWIPER
   const renderBookCard = (book) => (
     <div key={book._id} className="bg-white rounded-lg shadow-md p-4">
       <div className="flex items-center justify-between mb-2">
@@ -63,13 +69,18 @@ const MainPage = () => {
   return (
     <div className="px-4 py-12 bg-gradient-to-b from-yellow-50 via-white to-yellow-100 min-h-screen flex justify-center">
       <div className="w-full max-w-screen-xl">
+        {/* ΤΙΤΛΟΣ ΣΕΛΙΔΑΣ */}
         <h1 className="text-4xl font-extrabold text-center text-green-800 mb-4">📚 Book Rental App</h1>
+
+        {/* ΣΥΝΤΟΜΗ ΠΕΡΙΓΡΑΦΗ */}
         <p className="text-center text-gray-700 max-w-2xl mx-auto mb-12 text-lg">
           Καλωσορίσατε στην 1η ελληνική πλατφόρμα για ενοικίαση βιβλίων!<br />
           Υποστηρίζουμε τοπικά βιβλιοπωλεία και συγγραφείς σε όλη την Ελλάδα.
         </p>
 
+        {/* ΤΜΗΜΑ ΝΕΩΝ ΚΑΙ BEST SELLER */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-10 mb-20">
+          {/* ΝΕΑ ΒΙΒΛΙΑ */}
           <div className="bg-white border border-green-500 rounded-xl shadow-lg p-6">
             <h2 className="text-2xl font-bold text-green-700 mb-4 text-center">🆕 Νέες αφίξεις </h2>
             <Swiper
@@ -86,6 +97,7 @@ const MainPage = () => {
             </Swiper>
           </div>
 
+          {/* ΔΗΜΟΦΙΛΗ ΒΙΒΛΙΑ */}
           <div className="bg-white border border-blue-500 rounded-xl shadow-lg p-6">
             <h2 className="text-2xl font-bold text-blue-700 mb-4 text-center">⭐ Δημοφιλέστερα Βιβλία</h2>
             <Swiper
@@ -103,6 +115,7 @@ const MainPage = () => {
           </div>
         </div>
 
+        {/* ΚΟΥΜΠΙ ΠΡΟΣΒΑΣΗΣ ΣΕ ΟΛΑ ΤΑ ΒΙΒΛΙΑ */}
         <div className="text-center mb-20">
           <Link
             to="/books"
@@ -112,14 +125,15 @@ const MainPage = () => {
           </Link>
         </div>
 
+        {/* ΕΝΟΤΗΤΑ ΕΠΙΚΟΙΝΩΝΙΑΣ */}
         <section className="text-center">
           <h2 className="text-2xl font-semibold text-gray-800 mb-3">📬 Επικοινωνία</h2>
           <p className="text-gray-700 mb-1">Έχεις απορίες ή χρειάζεσαι βοήθεια με την παραγγελία σου;</p>
-          <p>
-            <a href="mailto:bookdelivery@app.gr" className="text-blue-600 hover:underline">
-              bookdelivery@app.gr
-            </a>
-          </p>
+         <p>
+  <Link to="/contact" className="text-blue-600 hover:underline">
+    bookdelivery@app.gr
+  </Link>
+</p>
         </section>
       </div>
     </div>

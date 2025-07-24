@@ -1,5 +1,6 @@
 import React from 'react';
 
+// ΣΥΝΑΡΤΗΣΗ ΓΙΑ ΔΗΜΙΟΥΡΓΙΑ ΛΙΣΤΑΣ ΕΠΙΛΟΓΩΝ ΧΡΟΝΟΥ (15 ΕΩΣ 180 ΛΕΠΤΑ, ΚΑΘΕ 15 ΛΕΠΤΑ)
 const generateDeliveryOptions = () => {
   const options = [];
   for (let minutes = 15; minutes <= 180; minutes += 15) {
@@ -13,12 +14,15 @@ const generateDeliveryOptions = () => {
   return options;
 };
 
+// COMPONENT ΓΙΑ DROPDOWN ΜΕ ΕΚΤΙΜΩΜΕΝΟ ΧΡΟΝΟ ΠΑΡΑΔΟΣΗΣ
 const DeliveryTimeDropdown = ({ value, onChange }) => {
   const options = generateDeliveryOptions();
 
   return (
     <div style={{ marginTop: '0.5rem' }}>
-      <label htmlFor="deliveryTime" style={{ fontWeight: 'bold' }}>Εκτιμώμενος Χρόνος Παράδοσης:</label>
+      <label htmlFor="deliveryTime" style={{ fontWeight: 'bold' }}>
+        ΕΚΤΙΜΩΜΕΝΟΣ ΧΡΟΝΟΣ ΠΑΡΑΔΟΣΗΣ:
+      </label>
       <select
         id="deliveryTime"
         value={value}
@@ -28,10 +32,10 @@ const DeliveryTimeDropdown = ({ value, onChange }) => {
           marginTop: '0.3rem',
           borderRadius: '5px',
           border: '1px solid #ccc',
-          width: '100%'
+          width: '100%',
         }}
       >
-        <option value="">-- Επιλέξτε Χρόνο --</option>
+        <option value="">-- ΕΠΙΛΕΞΤΕ ΧΡΟΝΟ --</option>
         {options.map((opt) => (
           <option key={opt.value} value={opt.label}>
             {opt.label}
@@ -43,3 +47,4 @@ const DeliveryTimeDropdown = ({ value, onChange }) => {
 };
 
 export default DeliveryTimeDropdown;
+

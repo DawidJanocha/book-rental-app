@@ -1,5 +1,9 @@
 import nodemailer from 'nodemailer';
 
+
+// Αποστολή email σε πελάτη όταν η παραγγελία επιβεβαιώνεται από το κατάστημα
+// Περιλαμβάνει πληροφορίες για την παραγγελία, τα προϊόντα και την παράδοση
+// Επίσης, υπολογίζει το συνολικό κόστος αν δεν έχει δοθεί
 const sendOrderEmailToCustomer = async ({
   customerEmail,
   username,
@@ -16,11 +20,11 @@ const sendOrderEmailToCustomer = async ({
         const price = typeof item.price === 'object' && item.price.$numberDecimal
           ? parseFloat(item.price.$numberDecimal)
           : parseFloat(item.price);
-
+        //  Ελέγχουμε αν το price είναι αριθμός
         return sum + item.quantity * price;
       }, 0).toFixed(2);
     }
-    // 👉 Δημιουργία transporter
+    // Δημιουργία transporter
     const transporter = nodemailer.createTransport({
       service: 'gmail',
       auth: {
@@ -28,11 +32,11 @@ const sendOrderEmailToCustomer = async ({
         pass: process.env.EMAIL_PASS,
       },
           tls: {
-    rejectUnauthorized: false // ⚠️ Accept self-signed certs
+    rejectUnauthorized: false // Accept self-signed certs
   }
     });
 
-    // 👉 Δημιουργία HTML περιεχομένου
+    //  Δημιουργία HTML περιεχομένου
     const itemsTable = items.map(item => `
       <tr>
         <td style="padding: 8px; border: 1px solid #ccc;">${item.title}</td>

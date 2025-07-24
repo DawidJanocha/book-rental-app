@@ -2,12 +2,14 @@ import React, { useState } from 'react';
 import axios from '../utils/axiosInstance';
 import { useNavigate } from 'react-router-dom';
 
+// ΚΑΤΗΓΟΡΙΕΣ ΒΙΒΛΙΩΝ ΠΟΥ ΜΠΟΡΕΙ ΝΑ ΠΡΟΣΘΕΣΕΙ Ο ΣΥΝΕΡΓΑΤΗΣ
 const categories = [
   'Λογοτεχνία', 'Ιστορία', 'Παιδικά', 'Επιστημονικά',
   'Μαγειρική', 'Εκμάθηση Ξένων Γλωσσών', 'Κόμικς', 'Μυθιστορήματα'
 ];
 
 const SellerStoreForm = () => {
+  // ΑΡΧΙΚΗ ΚΑΤΑΣΤΑΣΗ ΦΟΡΜΑΣ ΜΕ ΟΛΑ ΤΑ ΠΕΔΙΑ ΤΟΥ ΚΑΤΑΣΤΗΜΑΤΟΣ
   const [form, setForm] = useState({
     storeName: '',
     afm: '',
@@ -22,11 +24,13 @@ const SellerStoreForm = () => {
   const navigate = useNavigate();
   const token = localStorage.getItem('token');
 
+  // ΧΕΙΡΙΣΜΟΣ ΑΛΛΑΓΗΣ ΣΕ INPUT ΠΕΔΙΑ
   const handleChange = (e) => {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
   };
 
+  // ΕΝΑΛΛΑΓΗ ΕΠΙΛΟΓΗΣ ΚΑΤΗΓΟΡΙΑΣ (ADD / REMOVE)
   const toggleCategory = (category) => {
     setForm((prev) => ({
       ...prev,
@@ -36,26 +40,28 @@ const SellerStoreForm = () => {
     }));
   };
 
+  // ΥΠΟΒΟΛΗ ΤΗΣ ΦΟΡΜΑΣ ΚΑΙ ΑΠΟΣΤΟΛΗ ΣΤΟ BACKEND
   const handleSubmit = async (e) => {
-  e.preventDefault();
-  const token = localStorage.getItem('token');
-  if (!token) return alert('Χρειάζεται σύνδεση');
+    e.preventDefault();
+    const token = localStorage.getItem('token');
+    if (!token) return alert('Χρειάζεται σύνδεση');
 
-  try {
-    await axios.post('/stores', form, {
-      headers: { Authorization: `Bearer ${token}` }
-    });
-    alert('✅ Το κατάστημα δημιουργήθηκε!');
-  } catch (err) {
-    console.error(err);
-    alert('❌ Σφάλμα κατά τη δημιουργία του καταστήματος');
-  }
-};
-
+    try {
+      await axios.post('/stores', form, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      alert('✅ Το κατάστημα δημιουργήθηκε!');
+    } catch (err) {
+      console.error(err);
+      alert('❌ Σφάλμα κατά τη δημιουργία του καταστήματος');
+    }
+  };
 
   return (
     <div className="max-w-3xl mx-auto bg-white rounded-xl shadow p-8 mt-8">
       <h2 className="text-2xl font-bold mb-6 text-gray-800">🛍 Δημιουργία Καταστήματος</h2>
+
+      {/* ΦΟΡΜΑ ΚΑΤΑΣΤΗΜΑΤΟΣ */}
       <form onSubmit={handleSubmit} className="grid grid-cols-1 gap-4">
         <input type="text" name="storeName" placeholder="Όνομα καταστήματος" value={form.storeName} onChange={handleChange} required className="input" />
         <input type="text" name="afm" placeholder="ΑΦΜ" value={form.afm} onChange={handleChange} required className="input" />
@@ -65,6 +71,7 @@ const SellerStoreForm = () => {
         <input type="tel" name="phone" placeholder="Τηλέφωνο" value={form.phone} onChange={handleChange} required className="input" />
         <input type="email" name="email" placeholder="Email" value={form.email} onChange={handleChange} required className="input" />
 
+        {/* ΕΠΙΛΟΓΗ ΚΑΤΗΓΟΡΙΩΝ ΒΙΒΛΙΩΝ */}
         <div>
           <p className="font-semibold text-gray-700 mb-2">📚 Κατηγορίες Βιβλίων</p>
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
@@ -82,6 +89,7 @@ const SellerStoreForm = () => {
           </div>
         </div>
 
+        {/* ΚΟΥΜΠΙ ΥΠΟΒΟΛΗΣ */}
         <button type="submit" className="bg-blue-600 text-white py-2 rounded hover:bg-blue-700 mt-4">
           ✅ Υποβολή Καταστήματος
         </button>

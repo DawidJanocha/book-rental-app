@@ -3,17 +3,23 @@ import React, { useEffect, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import axios from '../utils/axiosInstance';
 
+
+
+// Σελίδα επιβεβαίωσης email μετά την εγγραφή
 const EmailVerification = () => {
   const { token } = useParams();
   const [status, setStatus] = useState('loading');
   const navigate = useNavigate();
 
+
+// Ελέγχουμε αν υπάρχει token
   useEffect(() => {
     const verify = async () => {
       try {
         const res = await axios.get(`/auth/verify/${token}`);
         setStatus(res.data.message || '✅ Επιτυχής επιβεβαίωση! Μεταφορά σε λίγο...');
 
+        
         // ➡️ Αν η επιβεβαίωση είναι επιτυχής, redirect σε 3 δευτερόλεπτα
         setTimeout(() => {
           navigate('/');

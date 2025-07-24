@@ -7,7 +7,7 @@ const instance = axios.create({
   },
 });
 
-// 👉 interceptor για να προσθέτει το JWT σε κάθε request
+// interceptor για να προσθέτει το JWT σε κάθε request
 instance.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('token');
@@ -19,13 +19,14 @@ instance.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-// 👉 interceptor για χειρισμό error 401 κ.λπ.
+//  interceptor για χειρισμό error 401 κ.λπ.
 instance.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response && error.response.status === 401) {
       localStorage.removeItem('token');
-      // π.χ. redirect ή εμφάνιση modal login
+      alert('🚫 Η συνεδρία σας έχει λήξει. Παρακαλώ συνδεθείτε ξανά.') ;
+      // Ανακατεύθυνση στην αρχική σελίδα ή σελίδα σύνδεσης
       window.location.href = '/';
     }
     if (error.response && error.response.status === 403) {

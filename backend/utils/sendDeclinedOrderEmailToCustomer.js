@@ -1,5 +1,7 @@
 import nodemailer from 'nodemailer';
 
+
+// Αποστολή email σε πελάτη όταν η παραγγελία απορρίπτεται από το κατάστημα
 const sendDeclinedOrderEmailToCustomer = async ({
   customerEmail,
   username,
@@ -11,17 +13,18 @@ const sendDeclinedOrderEmailToCustomer = async ({
   totalCost,
 
 }) => {
+//  Αν δεν έχει δοθεί totalCost, υπολογίζουμε το συνολικό κόστος από τα items
   try {
     if (!totalCost) {
       totalCost = items.reduce((sum, item) => {
         const price = typeof item.price === 'object' && item.price.$numberDecimal
           ? parseFloat(item.price.$numberDecimal)
           : parseFloat(item.price);
-
+//  Ελέγχουμε αν το price είναι αριθμός
         return sum + item.quantity * price;
       }, 0).toFixed(2);
     }
-    // 👉 Δημιουργία transporter
+    //  Δημιουργία transporter
     const transporter = nodemailer.createTransport({
       service: 'gmail',
       auth: {
@@ -33,7 +36,7 @@ const sendDeclinedOrderEmailToCustomer = async ({
         }
     });
 
-    // 👉 Δημιουργία HTML περιεχομένου
+    //  Δημιουργία HTML περιεχομένου
     const itemsTable = items.map(item => `
       <tr>
         <td style="padding: 8px; border: 1px solid #ccc;">${item.title}</td>
@@ -105,7 +108,7 @@ const sendDeclinedOrderEmailToCustomer = async ({
       html,
     });
 
-    console.log(`✅ Email αποστάλθηκε στον πελάτη: ${customerEmail}`);
+  
   } catch (err) {
     console.error('❌ Αποτυχία αποστολής email στον πελάτη:', err);
   }

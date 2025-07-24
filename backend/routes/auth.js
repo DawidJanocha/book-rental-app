@@ -13,7 +13,7 @@ router.get('/verify/:token', verifyEmail);
 //Route για Verification email
 router.get('/verify-email', verifyEmail);
 
-// ✅ Προφίλ χρήστη (με token)
+// Προφίλ χρήστη (με token)
 router.get('/profile', protect, getProfile);
 
 

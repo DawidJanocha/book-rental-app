@@ -19,11 +19,25 @@ import Footer from './components/Footer';
 import MainPage from './pages/MainPage';
 import LoginModal from './components/LoginModal';
 
+import ContactForm from './pages/ContactForm';
+
+// Κύρια συνάρτηση του App που περιέχει τις διαδρομές και το περιεχόμενο της εφαρμογής
+// Χρησιμοποιεί το AuthProvider για να παρέχει το context του χρήστη σε όλη την εφαρμογή
+// Χρησιμοποιεί το CartProvider για να παρέχει το καλάθι αγορών   
 function AppContent() {
   const { user } = useContext(AuthContext);
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
-
+// Συνάρτηση για το άνοιγμα και κλείσιμο του modal σύνδεσης
+  // Χρησιμοποιείται για να εμφανίζει το modal σύνδεσης όταν ο χρήστης δεν είναι συνδεδεμένος
+  // και να το κλείνει όταν ο χρήστης συνδεθεί ή ακυρώσει τη σύνδεση
+  // Επίσης, χρησιμοποιείται για να ανακατευθύνει τον χρήστη  
   const handleLoginOpen = () => setIsLoginModalOpen(true);
+
+  // Συνάρτηση για το κλείσιμο του modal σύνδεσης
+  // Χρησιμοποιείται για να κλείνει το modal όταν ο χρήστης ολο κληρώσει τη σύνδεση ή ακυρώσει τη διαδικασία
+  // Επίσης, μπορεί να ανακατευθύνει τον χρήστη σε άλλη σελίδα αν χρειάζεται
+  // π.χ. στο κύριο περιεχόμενο της εφαρμογής ή σε μια σελίδα προφίλ
+  // Αν ο χρήστης είναι συνδεδεμένος, το modal δεν εμφανίζεται
   const handleLoginClose = () => setIsLoginModalOpen(false);
 
   return (
@@ -31,19 +45,21 @@ function AppContent() {
       <Navbar onLoginClick={handleLoginOpen} />
 
       <Routes>
-        <Route path="/mainpage" element={<MainPage />} />
-        <Route path="/" element={<Navigate to="/mainpage" replace />} />
-        <Route path="/login" element={<Navigate to="/" replace />} />
-        <Route path="/customer" element={<CustomerPage />} />
-        <Route path="/seller" element={<SellerPage />} />
-        <Route path="/cart" element={<CartPage />} />
-        <Route path="/account" element={<UserProfile />} />
-        <Route path="/verify/:token" element={<EmailVerification />} />
-        <Route path="/store/create" element={<SellerStoreForm />} />
-        <Route path="/storecreate" element={<StoreCreate />} />
-        <Route path="/forbidden" element={<ForbiddenPage />} />
-        <Route path="/store/:storeId" element={<StoreDetails />} />
-        <Route
+        <Route path="/mainpage" element={<MainPage />} /> {/*// Κύρια σελίδα της εφαρμογής*/}
+        <Route path="/" element={<Navigate to="/mainpage" replace />} /> {/*// Ανακατεύθυνση στην κύρια σελίδα*/}
+        <Route path="/register" element={<Navigate to="/" replace />} /> {/*// Ανακατεύθυνση στη σελίδα σύνδεσης  */} 
+        <Route path="/login" element={<Navigate to="/" replace />} /> {/*// Ανακατεύθυνση στη σελίδα σύνδεσης*/}
+        <Route path="/customer" element={<CustomerPage />} /> {/*// Σελίδα πελάτη με προϊόντα και καλάθι αγορών*/}
+        <Route path="/seller" element={<SellerPage />} /> {/*// Σελίδα πωλητή με δυνατότητα διαχείρισης καταστήματος και προϊόντων*/}
+        <Route path="/cart" element={<CartPage />} />  {/* // Σελίδα καλαθιού αγορών με δυνατότητα προβολής και επεξεργασίας προϊόντων*/}
+        <Route path="/account" element={<UserProfile />} />   {/*// Σελίδα προφίλ χρήστη με δυνατότητα προβολής και επεξεργασίας στοιχείων*/}
+        <Route path="/verify/:token" element={<EmailVerification />} />  {/* // Σελίδα επαλήθευσης email με βάση το token που αποστέλλεται κατά την εγγραφή*/}
+        <Route path="/store/create" element={<SellerStoreForm />} />   {/* // Σελίδα δημιουργίας καταστήματος για πωλητές*/}
+        <Route path="/storecreate" element={<StoreCreate />} />  {/* // Σελίδα δημιουργίας καταστήματος για πωλητές*/}
+        <Route path="/forbidden" element={<ForbiddenPage />} />  {/* // Σελίδα απαγορευμένης πρόσβασης για χρήστες που δεν έχουν δικαίωμα πρόσβασης σε συγκεκριμένες λειτουργίες*/}
+        <Route path="/store/:storeId" element={<StoreDetails />} />  {/* // Σελίδα προβολής καταστήματος με βάση το storeId*/}
+        <Route path="/contact" element={<ContactForm />} /> {/* // Σελίδα επικοινωνίας για αποστολή μηνυμάτων ή ερωτήσεων*/}    
+          <Route
           path="/order-history"
           element={
             <ProtectedRoute role="customer">
@@ -60,9 +76,7 @@ function AppContent() {
           }
         />
       </Routes>
-
       {isLoginModalOpen && <LoginModal onClose={handleLoginClose} />}
-
       <Footer />
     </>
   );

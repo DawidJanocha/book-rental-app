@@ -1,7 +1,7 @@
 // middleware/protect.js
 import jwt from 'jsonwebtoken';
 import User from '../models/User.js';
-
+// Επαλήθευση token και αποθήκευση χρήστη στο req.user
 const protect = async (req, res, next) => {
   let token;
 

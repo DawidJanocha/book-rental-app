@@ -5,7 +5,7 @@ import {
   addBook,
   updateBook,
   deleteBook,
-  deleteAllBooks,
+  deleteAllBooksForSeller,
   getMyBooks,
   getAvailableBooks,
   rentBook,
@@ -29,23 +29,23 @@ const router = express.Router();
 
 /* 
 ===================================
-📚 Public & Customer Routes
+ Public & Customer Routes
 ===================================
 */
 
-// ✅ Δημόσια προβολή όλων των διαθέσιμων βιβλίων (για το CustomerPage.jsx)
+//  Δημόσια προβολή όλων των διαθέσιμων βιβλίων (για το CustomerPage.jsx)
 router.get('/', getAvailableBooks);
 
-// ✅ Ενοικίαση ενός βιβλίου (μόνο για customer)
+//  Ενοικίαση ενός βιβλίου (μόνο για customer)
 router.put('/rent/:bookId', protect, isCustomer, rentBook);
 
-// ✅ Ενοικίαση πολλών βιβλίων (μόνο για customer)
+//  Ενοικίαση πολλών βιβλίων (μόνο για customer)
 router.put('/rent-multiple', protect, isCustomer, rentMultipleBooks);
 
-// ✅ Νέα βιβλία με βάση ημερομηνία δημιουργίας
+//  Νέα βιβλία με βάση ημερομηνία δημιουργίας
 router.get('/recent', getRecentBooks);
 
-// ✅ Best sellers με βάση παραγγελίες
+// Best sellers με βάση παραγγελίες
 router.get('/best-sellers', getBestSellers);
 
 
@@ -58,22 +58,24 @@ router.get('/store/:storeId', getBooksByStore); // ✅
 ===================================
 */
 
-// ✅ Προσθήκη νέου βιβλίου
+//  Προσθήκη νέου βιβλίου
 router.post('/', protect, isSeller, addBook);
 
-// ✅ Προβολή βιβλίων του seller
+//  Προβολή βιβλίων του seller
 router.get('/my', protect, isSeller, getMyBooks);
 
-// ✅ Ενημέρωση βιβλίου
+//  Ενημέρωση βιβλίου
 router.put('/:id', protect, isSeller, updateBook);
 
-// ✅ Διαγραφή ενός βιβλίου
+//  Διαγραφή ενός βιβλίου
 router.delete('/:id', protect, isSeller, deleteBook);
 
-// ✅ Διαγραφή όλων των βιβλίων του seller
-router.delete('/', protect, isSeller, deleteAllBooks);
 
-// ✅ Μαζική εισαγωγή βιβλίων (Excel / JSON)
+// Διαγραφή όλων των βιβλίων του seller
+router.delete('/', protect, deleteAllBooksForSeller);
+
+
+//Μαζική εισαγωγή βιβλίων (Excel / JSON)
 router.post('/import', protect, isSeller, upload, bulkImportBooks);
 
 

@@ -4,19 +4,34 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from '../utils/axiosInstance';
 import BulkImport from '../components/BulkImport';
+import SalesStatsPieChart from '../components/SalesStatsPieChart'; 
+import SalesRevenueLineChart from '../components/SalesRevenueLineChart';
+import TopOrdersChart from '../components/TopOrdersChart';
 
+import {
+  Chart as ChartJS,
+  LineElement,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  Tooltip,
+  Legend,
+} from 'chart.js';
+
+ChartJS.register(LineElement, CategoryScale, LinearScale, PointElement, Tooltip, Legend);
+// Σελίδα Πωλητή
 const SellerPage = () => {
   const navigate = useNavigate();
   const token = localStorage.getItem('token');
 
-  // States
+  // States για τα βιβλία, φόρμα προσθήκης, φόρμα επεξεργασίας, ενεργό tab, κατάστημα, στατιστικά πωλήσεων και παραγγελίες
   const [books, setBooks] = useState([]);
   const [form, setForm] = useState({ title: '', author: '', description: '', quantity: 1, price: 0 });
   const [editForm, setEditForm] = useState({ title: '', author: '', description: '', quantity: 1, price: 0 });
   const [editingBookId, setEditingBookId] = useState(null);
-  const [activeTab, setActiveTab] = useState('myBooks');
+  const [activeTab, setActiveTab] = useState('myBooks','storeInfo','addBook','salesStats','pendingOrders','history');
   const [store, setStore] = useState(null);
-  const [salesStats, setSalesStats] = useState(null);
+  const [salesStats, setsalesStats] = useState(null);
   const [orders, setOrders] = useState([]);
   const [deliveryTimes, setDeliveryTimes] = useState({});
   const [pendingOrders, setPendingOrders] = useState([]);
@@ -41,6 +56,8 @@ const generateDeliveryOptions = () => {
   return options;
 };
 
+
+// Χρόνοι παράδοσης για κάθε παραγγελία
 const handleFilter = () => {
   if (!fromDate && !toDate) {
     // Επιστροφή όλων των παραγγελιών
@@ -48,19 +65,26 @@ const handleFilter = () => {
     setFilteredDeclinedOrders(declinedOrders);
     return;
   }
-
+// Φιλτράρισμα με βάση τις ημερομηνίες
   const from = fromDate ? new Date(fromDate) : null;
   const to = toDate ? new Date(toDate) : null;
   if (to) to.setHours(23, 59, 59, 999);
-
+//  Ελέγχουμε αν οι παραγγελίες είναι εντός του εύρους ημερομηνιών
   const isInRange = (orderDate) => {
     const date = new Date(orderDate);
-
+//  Ελέγχουμε αν η ημερομηνία της παραγγελίας είναι εντός του εύρους
     if (from && to) return date >= from && date <= to;
+
+    // Αν μόνο από υπάρχει, ελέγχουμε αν είναι μεγαλύτερη ή ίση με την από
     if (from && !to) return date >= from;
+
+      // Αν μόνο έως υπάρχει, ελέγχουμε αν είναι μικρότερη ή ίση με την έως
     if (!from && to) return date <= to;
-    return true; // fallback – shouldn't happen
+    //  Αν δεν υπάρχει εύρος, επιστρέφουμε true για να συμπεριλάβουμε όλες τις παραγγελίες
+    return true; 
   };
+
+
 
   setFilteredAcceptedOrders(
     acceptedOrders.filter((order) => isInRange(order.createdAt))
@@ -69,7 +93,7 @@ const handleFilter = () => {
     declinedOrders.filter((order) => isInRange(order.createdAt))
   );
 };
-
+// Χειρισμός αλλαγής ημερομηνιών
 useEffect(() => {
   handleFilter();
 }, [acceptedOrders, declinedOrders, fromDate, toDate]);
@@ -101,52 +125,54 @@ useEffect(() => {
 
 
   // Ανάκτηση Στατιστικών Πωλήσεων
-  const fetchSalesStats = useCallback(async () => {
-    try {
-      const res = await axios.get('/sales/stats', {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      setSalesStats(res.data);
-    } catch (err) {
-      alert('❌ Σφάλμα κατά την ανάκτηση των στατιστικών πωλήσεων');
-    }
-  }, [token]);
+ const fetchsalesStats = useCallback(async () => {
+  try {
+    const res = await axios.get('/stats/seller');
+    console.log('✅ Δεδομένα που ήρθαν:', res.data);
+    setsalesStats(res.data); // ή όπως λέγεται το state σου
+  } catch (err) {
+    console.error('❌ Σφάλμα στα fetchsalesStats:', err);
+  }
+}, []);
+
 
   // On Mount
   useEffect(() => {
     fetchMyBooks();
     fetchMyStore();
   }, [fetchMyBooks, fetchMyStore]);
-
+//  Ανάκτηση παραγγελιών
    useEffect(() => {
     if (activeTab === 'salesStats') {
-      fetchSalesStats();
+          console.log('📊 Τρέχω fetchsalesStats...');
+
+      fetchsalesStats();
     }
-  }, [activeTab, fetchSalesStats]);
+  }, [activeTab, fetchsalesStats]);
 
   // Προσθήκη βιβλίου
   const handleAdd = async (e) => {
   e.preventDefault();
 
-  // 👉 Καθαρισμός τιμής (π.χ. 10,99 -> 10.99)
+  //  Καθαρισμός τιμής (π.χ. 10,99 -> 10.99)
   const cleanPrice = parseFloat(form.price.toString().replace(',', '.'));
   const cleanQuantity = parseInt(form.quantity);
 
-  // 🔍 Έλεγχος εγκυρότητας τιμών
+  //  Έλεγχος εγκυρότητας τιμών
   if (isNaN(cleanPrice) || cleanPrice < 0) {
     return alert('❌ Η τιμή ενοικίασης πρέπει να είναι ένας έγκυρος αριθμός (π.χ. 9.99)');
   }
-
+//  Έλεγχος εγκυρότητας ποσότητας
   if (isNaN(cleanQuantity) || cleanQuantity < 1) {
     return alert('❌ Η ποσότητα πρέπει να είναι ένας αριθμός μεγαλύτερος ή ίσος του 1');
   }
-
+//  Έλεγχος αν ο τίτλος είναι κενός
   if (!form.title.trim()) {
     return alert('❌ Συμπλήρωσε τίτλο βιβλίου');
   }
 
   try {
-    // 📦 Αποστολή καθαρών τιμών
+    // Αποστολή καθαρών τιμών
     await axios.post(
       '/books',
       {
@@ -183,18 +209,20 @@ useEffect(() => {
   const handleUpdate = async (e) => {
   e.preventDefault();
 
+  // Καθαρισμός τιμής (π.χ. 10,99 -> 10.99)
   const cleanPrice = parseFloat(editForm.price.toString().replace(',', '.'));
+  // Καθαρισμός ποσότητας
   const cleanQuantity = parseInt(editForm.quantity);
 
-  // 🔍 Validation
+  //  Validation
   if (!editForm.title.trim()) {
     return alert('❌ Συμπλήρωσε τίτλο βιβλίου');
   }
-
+//  Έλεγχος εγκυρότητας τιμής
   if (isNaN(cleanPrice) || cleanPrice < 0) {
     return alert('❌ Η τιμή πρέπει να είναι ένας έγκυρος αριθμός (π.χ. 9.99)');
   }
-
+//  Έλεγχος εγκυρότητας ποσότητας
   if (isNaN(cleanQuantity) || cleanQuantity < 1) {
     return alert('❌ Η ποσότητα πρέπει να είναι τουλάχιστον 1');
   }
@@ -219,6 +247,7 @@ useEffect(() => {
   }
 };
 
+ 
   // Διαγραφή μεμονωμένου βιβλίου
   const handleDelete = async (bookId) => {
     if (!window.confirm('🗑️ Είσαι σίγουρος ότι θες να διαγράψεις αυτό το βιβλίο;')) return;
@@ -247,6 +276,12 @@ useEffect(() => {
     }
   };
 
+
+
+
+
+
+// Διαχείριση παραγγελιών
   const fetchOrders = useCallback(async () => {
   try {
     const res = await axios.get('/order/seller');
@@ -260,17 +295,21 @@ useEffect(() => {
   }
 }, []);
 
+
+// Ανάκτηση παραγγελιών όταν αλλάζει το activeTab
 useEffect(() => {
   fetchOrders();
 }, []);
 
+
+// Χειρισμός αποδοχής παραγγελίας
 const handleAcceptOrder = async (orderId) => {
   const estimatedTime = deliveryTimes[orderId];
   if (!estimatedTime) {
     alert('❌ Παρακαλώ επίλεξε χρόνο παράδοσης');
     return;
   }
-
+//  Ελέγχουμε αν ο χρόνος παράδοσης είναι έγκυρος
   try {
     await axios.put(`/order/confirm/${orderId}`, {
       estimatedDeliveryTime: estimatedTime,
@@ -284,7 +323,7 @@ const handleAcceptOrder = async (orderId) => {
     alert('❌ Σφάλμα στην αποδοχή παραγγελίας');
   }
 };
-
+// Χειρισμός απόρριψης παραγγελίας
 const handleDenyOrder = async (orderId) => {
   try {
     await axios.put(`/order/deny/${orderId}`, { status: 'declined' }, {
@@ -298,6 +337,8 @@ const handleDenyOrder = async (orderId) => {
   }
 };
 
+
+// Χειρισμός αλλαγής χρόνου παράδοσης
 const calculateTotal = (order) => {
   if (order.totalPrice?.$numberDecimal) {
     return Number(order.totalPrice.$numberDecimal).toFixed(2);
@@ -309,7 +350,10 @@ const calculateTotal = (order) => {
 };
 
 
+
+
  return (
+
     <div className="min-h-screen bg-gray-900 text-white p-8">
       <h2 className="text-3xl font-bold mb-6">📦 Πίνακας Πωλητή</h2>
 
@@ -318,8 +362,10 @@ const calculateTotal = (order) => {
         <button className={`${activeTab === 'storeInfo' ? 'text-blue-400' : 'text-white'} font-semibold`} onClick={() => setActiveTab('storeInfo')}>🏪 Κατάστημα</button>
         <button className={`${activeTab === 'addBook' ? 'text-blue-400' : 'text-white'} font-semibold`} onClick={() => setActiveTab('addBook')}>➕ Προσθήκη Βιβλίου</button>
         <button className={`${activeTab === 'myBooks' ? 'text-blue-400' : 'text-white'} font-semibold`} onClick={() => setActiveTab('myBooks')}>📚 Τα Βιβλία μου</button>
-        {/* <button className={`${activeTab === 'salesStats' ? 'text-blue-400' : 'text-white'} font-semibold`} onClick={() => setActiveTab('salesStats')}>📊 Στατιστικά πωλήσεων</button> */}
-        <button className={`${activeTab === 'pendingOrders' ? 'text-blue-400' : 'text-white'} font-semibold`} onClick={() => setActiveTab('pendingOrders')}>📦 Παραγγελίες ({pendingOrders?.length || 0})</button>
+<button
+          onClick={() => setActiveTab('salesStats')}
+          className={`px-4 py-2 rounded ${activeTab === 'salesStats' ? 'bg-yellow-500 text-black' : 'bg-gray-700 text-white'}`}
+        >📊 Στατιστικά Πωλήσεων </button>        <button className={`${activeTab === 'pendingOrders' ? 'text-blue-400' : 'text-white'} font-semibold`} onClick={() => setActiveTab('pendingOrders')}>📦 Παραγγελίες ({pendingOrders?.length || 0})</button>
         <button className={`${activeTab === 'history' ? 'text-blue-400' : 'text-white'} font-semibold`} onClick={() => setActiveTab('history')}>📜 Ιστορικό</button>
       </div>
 
@@ -434,7 +480,17 @@ const calculateTotal = (order) => {
         </div>
       )}
 
-      {activeTab === 'myBooks' && (
+
+   {activeTab === 'myBooks' && (
+  <>
+    <div className="flex justify-start mb-4">
+      <button
+        onClick={handleDeleteAll}
+        className="bg-red-700 hover:bg-red-600 text-white font-semibold px-4 py-2 rounded shadow transition duration-200"
+      >
+        🗑️ Διαγραφή Όλων των Βιβλίων
+      </button>
+    </div>
         <ul className="space-y-4 max-w-lg">
           {books.map((book) => (
             <li
@@ -561,16 +617,133 @@ const calculateTotal = (order) => {
             </li>
           ))}
         </ul>
-      )}
+     </> )}
 
-      {/*activeTab === 'salesStats' && salesStats && (
-        <div className="space-y-4 max-w-lg">
-          <h3 className="text-2xl font-semibold">Στατιστικά Αγορών</h3>
-          <p><strong>Σύνολο Πωλήσεων:</strong> {salesStats.totalSales} €</p>
-          <p><strong>Σύνολο Παραγγελιών:</strong> {salesStats.totalOrders}</p>
-        </div>
-      )*/}
 
+
+
+
+
+
+
+
+
+
+
+{/*Στατιστικά πωλήσεων*/}
+{activeTab === 'salesStats' && salesStats && (
+  <div className="flex flex-col items-center justify-center w-full">
+    <h2 className="text-3xl font-bold mb-6 text-white">📊 ΣΤΑΤΙΣΤΙΚΑ ΠΩΛΗΣΕΩΝ</h2>
+
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full max-w-7xl px-4">
+      {/* Στήλη 1: Πωλήσεις */}
+      <div className="flex flex-col items-center">
+       
+
+        {salesStats?.bestSellers?.length > 0 && (
+          <div className="w-full">
+            <h4 className="text-xl font-semibold mt-6 mb-2 text-yellow-300">🌟 Best Sellers</h4>
+             <SalesStatsPieChart bestSellers={salesStats.bestSellers} />
+            <table className="w-full text-sm text-left border border-yellow-500 rounded overflow-hidden">
+              <thead className="bg-yellow-500 text-black">
+                <tr>
+                  <th className="p-2">#</th>
+                  <th className="p-2">Τίτλος</th>
+                  <th className="p-2">Πωλήσεις</th>
+                </tr>
+              </thead>
+              <tbody>
+                {salesStats.bestSellers.map((b, i) => (
+                  <tr key={i} className="bg-yellow-100 hover:bg-yellow-200 text-black">
+                    <td className="p-2">{i + 1}</td>
+                    <td className="p-2">{b.title}</td>
+                    <td className="p-2">{b.sold}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
+
+      {/* Στήλη 2: Πελάτες */}
+      <div className="flex flex-col items-center">
+        {salesStats?.customers?.length > 0 && (
+          <div className="w-full">
+            <h4 className="text-2xl font-bold text-purple-300 flex items-center mb-4">
+              <span className="mr-2">👥</span> Πελάτες
+            </h4>
+            <div className="overflow-x-auto rounded shadow">
+              <table className="min-w-full text-sm text-left border border-gray-700 bg-gray-900">
+                <thead className="bg-gray-800 text-gray-300 uppercase tracking-wider text-xs">
+                  <tr>
+                    <th className="px-3 py-2">#</th>
+                    <th className="px-3 py-2">Username</th>
+                    <th className="px-3 py-2">Όνομα</th>
+                    <th className="px-3 py-2">Επώνυμο</th>
+                    <th className="px-3 py-2">Email</th>
+                    <th className="px-3 py-2">Περιοχή</th>
+                    <th className="px-3 py-2">Τηλέφωνο</th>
+                    <th className="px-3 py-2">Διεύθυνση</th>
+                    <th className="px-3 py-2">Τ.Κ.</th>
+                    <th className="px-3 py-2">Κουδούνι</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {salesStats.customers.map((c, i) => (
+                    <tr
+                      key={c._id || i}
+                      className="border-t border-gray-700 hover:bg-gray-800 transition duration-200"
+                    >
+                      <td className="px-3 py-2 font-medium text-gray-400">{i + 1}</td>
+                      <td className="px-3 py-2">{c.username}</td>
+                      <td className="px-3 py-2">{c.firstName || '-'}</td>
+                      <td className="px-3 py-2">{c.lastName || '-'}</td>
+                      <td className="px-3 py-2">{c.email}</td>
+                      <td className="px-3 py-2">{c.region || '-'}</td>
+                      <td className="px-3 py-2">{c.phone || '-'}</td>
+                      <td className="px-3 py-2">{c.street || '-'}</td>
+                      <td className="px-3 py-2">{c.postalCode || '-'}</td>
+                      <td className="px-3 py-2">{c.doorbell || '-'}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Στήλη 3: Πληροφορίες */}
+      
+      <div className="bg-gray-900 text-white p-6 rounded shadow w-full space-y-2">
+        <p>📦 Παραγγελίες: <strong>{salesStats?.orderCount}</strong></p>
+        <TopOrdersChart topOrders={salesStats.topOrders} />
+        {salesStats?.lastOrder && (
+          <p className="text-sm text-gray-400 ml-4">
+            Τελευταία: {new Date(salesStats.lastOrder.createdAt).toLocaleString('el-GR')} - {salesStats.lastOrder.productName} ({salesStats.lastOrder.totalPrice} €)
+          </p>
+        )}
+        <p>💶 Έσοδα: <strong>{Number(salesStats.totalRevenue).toFixed(2)} €</strong></p>
+        {salesStats?.lastOrder && (
+          <p className="text-sm text-green-400 ml-4">+{salesStats.lastOrder.totalPrice} € τελευταία είσπραξη</p>
+        )}
+        <SalesRevenueLineChart dailyRevenue={salesStats.dailyRevenue} />
+        <p>📚 Βιβλία: <strong>{salesStats.booksSold}</strong></p>
+      </div>
+    </div>
+  </div>
+)}
+
+
+
+
+
+
+
+
+      
+ {/* Διαχείριση παραγγελιών */}
   {activeTab === 'pendingOrders' && (
       <div className="max-w-4xl mx-auto p-4 space-y-4">
           <h2 className="text-xl font-bold text-yellow-300 mb-4">
@@ -637,7 +810,10 @@ const calculateTotal = (order) => {
       ))
     )}
   </div>
-)}{activeTab === 'history' && (
+)}
+
+{/* ΙΣΤΟΡΙΚΟ ΠΑΡΑΓΓΕΛΙΩΝ */}
+{activeTab === 'history' && (
   <div className="mt-6">
     <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
       📜 Ιστορικό Παραγγελιών

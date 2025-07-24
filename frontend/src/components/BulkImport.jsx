@@ -1,17 +1,19 @@
-// src/components/BulkImport.jsx
 import React, { useRef, useState } from 'react';
 import axios from '../utils/axiosInstance';
 
+// COMPONENT ΓΙΑ ΜΑΖΙΚΗ ΕΙΣΑΓΩΓΗ ΒΙΒΛΙΩΝ (.JSON Ή .XLSX)
 const BulkImport = ({ onSuccess }) => {
-  const [file, setFile] = useState(null);
-  const [importedBooks, setImportedBooks] = useState([]);
-  const fileInputRef = useRef(null); // 👉 για reset input
-  const token = localStorage.getItem('token');
+  const [file, setFile] = useState(null); // ΤΟ ΑΡΧΕΙΟ ΠΟΥ ΕΠΙΛΕΧΤΗΚΕ
+  const [importedBooks, setImportedBooks] = useState([]); // ΛΙΣΤΑ ΒΙΒΛΙΩΝ ΠΟΥ ΕΙΣΑΓΟΝΤΑΙ
+  const fileInputRef = useRef(null); // ΧΡΗΣΙΜΟ ΓΙΑ RESET ΤΟΥ FILE INPUT
+  const token = localStorage.getItem('token'); // ΠΑΙΡΝΟΥΜΕ ΤΟ TOKEN ΓΙΑ ΕΞΟΥΣΙΟΔΟΤΗΣΗ
 
+  // ΟΤΑΝ ΕΠΙΛΕΓΕΤΑΙ ΝΕΟ ΑΡΧΕΙΟ
   const handleFileChange = (e) => {
     setFile(e.target.files[0]);
   };
 
+  // ΑΠΟΣΤΟΛΗ ΑΡΧΕΙΟΥ ΣΤΟ BACKEND
   const handleUpload = async () => {
     if (!file) return alert('🚫 Παρακαλώ επίλεξε αρχείο .json ή .xlsx');
 
@@ -26,11 +28,12 @@ const BulkImport = ({ onSuccess }) => {
         },
       });
 
+      // ΕΜΦΑΝΙΣΗ ΜΗΝΥΜΑΤΟΣ ΚΑΙ ΛΙΣΤΑΣ ΒΙΒΛΙΩΝ ΠΟΥ ΕΙΣΗΧΘΗΣΑΝ
       alert(res.data.message);
       setImportedBooks(res.data.importedBooks || []);
       if (onSuccess) onSuccess();
 
-      // ✅ Reset input για να ξαναεπιλεγεί το ίδιο αρχείο
+      // RESET FILE INPUT
       setFile(null);
       if (fileInputRef.current) {
         fileInputRef.current.value = '';
@@ -42,6 +45,7 @@ const BulkImport = ({ onSuccess }) => {
     }
   };
 
+  // ΕΠΙΣΤΡΕΦΕΙ HTML ΜΕ ΤΗ ΦΟΡΜΑ ΚΑΙ ΤΗ ΛΙΣΤΑ ΑΠΟΤΕΛΕΣΜΑΤΩΝ
   return (
     <div className="bg-gray-800 text-white p-6 mt-8 rounded shadow-md w-full max-w-lg">
       <h3 className="text-lg font-semibold mb-4">📦 Μαζική Εισαγωγή Βιβλίων</h3>

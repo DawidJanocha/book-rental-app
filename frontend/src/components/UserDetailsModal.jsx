@@ -1,3 +1,5 @@
+//  frontend/src/components/UserDetailsModal.jsx
+
 import React, { useState } from 'react';
 import './UserDetailsModal.css';
 import axios from '../utils/axiosInstance';
@@ -17,7 +19,7 @@ const UserDetailsModal = ({ isOpen, onClose, userDetails, username, onUpdate }) 
     try {
       await axios.post('/user/details', editedDetails);
       setMessage('✅ Τα στοιχεία ενημερώθηκαν.');
-      onUpdate(editedDetails); // Ενημερώνει και το parent component
+      onUpdate(editedDetails); 
       setIsEditing(false);
     } catch (err) {
       setMessage('❌ Σφάλμα κατά την ενημέρωση.');

@@ -6,7 +6,7 @@ import { sendEmail } from '../utils/sendEmail.js';
 import sendOrderEmailToCustomer from '../utils/sendOrderEmailToCustomer.js';
 import sendDeclinedOrderEmailToCustomer from '../utils/sendDeclinedOrderEmailToCustomer.js';
 
-// ✅ Ολοκλήρωση παραγγελίας από customer
+// Ολοκλήρωση παραγγελίας από customer
 export const completeOrder = async (req, res) => {
   try {
     const { items, comments } = req.body;
@@ -34,7 +34,7 @@ export const completeOrder = async (req, res) => {
       });
     }
 
-    // ✅ Ομαδοποίηση ΜΕΤΑ τον εμπλουτισμό
+    // Ομαδοποίηση ΜΕΤΑ τον εμπλουτισμό
     const itemsByStore = {};
     for (const item of enrichedItems) {
       const storeKey = item.storeId.toString();
@@ -65,9 +65,8 @@ export const completeOrder = async (req, res) => {
 
       await newOrder.save();
 
-      console.log(`✅ Created order for store ${store.storeName} (${store.email})`);
-
-      const htmlItems = storeItems
+    // Αποστολή email στον πελάτη
+    const htmlItems = storeItems
         .map(
           (i) => `
             <tr>
@@ -108,7 +107,7 @@ export const completeOrder = async (req, res) => {
 
 
 
-// ✅ Επιβεβαίωση παραγγελίας από Seller
+// Επιβεβαίωση παραγγελίας από Seller
 export const confirmOrderBySeller = async (req, res) => {
   try {
     const { orderId } = req.params;
@@ -183,7 +182,7 @@ export const denyOrderBySeller = async (req, res) => {
       return res.status(404).json({ message: 'Η παραγγελία δεν βρέθηκε' });
     }
 
-    // 🔐 Μόνο seller του συγκεκριμένου store μπορεί να επιβεβαιώσει
+    //Μόνο seller του συγκεκριμένου store μπορεί να επιβεβαιώσει
     if (req.user.role !== 'seller') {
       return res.status(403).json({ message: 'Μόνο sellers μπορούν να επιβεβαιώσουν παραγγελίες' });
     }
@@ -192,11 +191,11 @@ export const denyOrderBySeller = async (req, res) => {
       return res.status(403).json({ message: 'Δεν έχεις πρόσβαση σε αυτή την παραγγελία' });
     }
 
-    // ✅ Ενημέρωση παραγγελίας
+    //Ενημέρωση παραγγελίας
     order.status = "declined";
     await order.save();
     console.log("Order", order)
-    // ✅ Αποστολή email στον πελάτη
+    //Αποστολή email στον πελάτη
     await sendDeclinedOrderEmailToCustomer({
       customerEmail: order.customer.email,
       username: order.customer.username,
@@ -224,7 +223,7 @@ export const denyOrderBySeller = async (req, res) => {
 }
 
 
-// ✅ Λήψη παραγγελιών seller
+//Λήψη παραγγελιών seller
 export const getSellerOrders = async (req, res) => {
   try {
     const store = await Store.findOne({ user: req.user._id });
@@ -337,7 +336,7 @@ export const getOrderHistory = async (req, res) => {
 
 
 
-// ✅ Επιστροφή παραγγελιών του πελάτη
+//Επιστροφή παραγγελιών του πελάτη
 export const getCustomerOrders = async (req, res) => {
   try {
     const orders = await Order.find({ customer: req.user._id }).sort({ createdAt: -1 });
@@ -362,7 +361,7 @@ export const getCustomerOrders = async (req, res) => {
           firstStoreName = product.storeId.storeName;
         }
       }
-
+      // Προσθήκη της παραγγελίας με τα στοιχεία  
       formattedOrders.push({
         _id: order._id,
         createdAt: order.createdAt,
@@ -381,12 +380,12 @@ export const getCustomerOrders = async (req, res) => {
   }
 };
 
-// ✅ Μαζική ενημέρωση κατάστασης
+// Μαζική ενημέρωση κατάστασης
 export const updateOrderStatus = async (req, res) => {
   try {
     const { orderId } = req.params;
     const { status } = req.body;
-
+      // Έλεγχος αν ο χρήστης είναι seller
     const order = await Order.findById(orderId).populate('customer');
     if (!order) {
       return res.status(404).json({ message: 'Η παραγγελία δεν βρέθηκε.' });

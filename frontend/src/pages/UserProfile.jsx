@@ -4,6 +4,10 @@ import './UserProfile.css';
 import UserDetailsModal from '../components/UserDetailsModal';
 import ChangePasswordModal from '../components/ChangePasswordModal';
 
+
+// Σελίδα Προφίλ Χρήστη
+// Εμφανίζει τα στοιχεία του χρήστη και επιτρέπει την επεξεργασία τους
+// Περιλαμβάνει φόρμα για ενημέρωση στοιχείων και modal για αλλαγή κωδικού      
 const UserProfile = () => {
   const [userDetails, setUserDetails] = useState(null);
   const [originalDetails, setOriginalDetails] = useState(null);
@@ -13,9 +17,11 @@ const UserProfile = () => {
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [detailsSubmitted, setDetailsSubmitted] = useState(false);
 
+
+  // Κατάσταση για τα στοιχεία χρήστη 
   useEffect(() => {
     const fetchUserDetails = async () => {
-      console.log('📦 Fetching user details...')
+      
       try {
         const { data } = await axios.get('/user/details');
         const cleanData = {
@@ -44,6 +50,9 @@ const UserProfile = () => {
     fetchUserDetails();
   }, []);
 
+
+  //  Συνάρτηση για την επεξεργασία των στοιχείων χρήστη
+  // Ενημερώνει την κατάσταση με τα νέα στοιχεία και εμφανίζει μήνυμα
   const handleChange = (e) => {
     setUserDetails(prev => ({
       ...prev,
@@ -51,6 +60,11 @@ const UserProfile = () => {
     }));
   };
 
+
+  // Συνάρτηση για την υποβολή της φόρμας
+  // Στέλνει τα ενημερωμένα στοιχεία στο backend και εμφανίζει μήνυμα επιτυχίας
+  // Αν η υποβολή είναι επιτυχής, ενημερώνει την κατάσταση και  κλείνει το modal
+  // Αν αποτύχει, εμφανίζει μήνυμα σφάλματος    
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -65,6 +79,9 @@ const UserProfile = () => {
     }
   };
 
+
+  // Συνάρτηση για την ενημέρωση των στοιχείων χρήστη
+  // Ενημερώνει την κατάσταση με τα νέα στοιχεία και κλείνει το modal         
   const handleUpdate = (updatedUser) => {
     setUserDetails(updatedUser);
     setOriginalDetails(updatedUser);
@@ -109,7 +126,7 @@ const UserProfile = () => {
             </form>
           </>
         )}
-
+       {/*Αν τα στοιχεία έχουν υποβληθεί, εμφανίζουμε κουμπιά για προβολή ή αλλαγή κωδικού */}
         {detailsSubmitted && userDetails && (
           <>
             <div className="user-profile-button-row">
@@ -119,7 +136,7 @@ const UserProfile = () => {
               }}>
                 Προβολή Στοιχείων
               </button>
-
+                {/* Κουμπί για αλλαγή κωδικού   */}
               <button onClick={() => {
                 setShowPasswordModal(true);
                 setShowDetailsModal(false);
@@ -127,7 +144,7 @@ const UserProfile = () => {
                 Αλλαγή Κωδικού
               </button>
             </div>
-
+              {/* Ανάλογα με το ποιο modal είναι ανοιχτό, εμφανίζουμε το αντίστοιχο περιεχόμενο */}
             <div className="user-profile-modal-content">
               {showDetailsModal && (
                 <UserDetailsModal
@@ -138,7 +155,7 @@ const UserProfile = () => {
                   onUpdate={handleUpdate}
                 />
               )}
-
+                 {/* Modal για αλλαγή κωδικού */}
               {showPasswordModal && (
                 <ChangePasswordModal
                   isOpen={true}

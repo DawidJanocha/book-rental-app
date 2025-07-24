@@ -121,11 +121,6 @@ export const login = async (req, res) => {
       return res.status(401).json({ message: 'Λανθασμένος κωδικός' });
     }
 
-    // ΠΡΟΑΙΡΕΤΙΚΟΣ ΕΛΕΓΧΟΣ ΕΠΙΒΕΒΑΙΩΣΗΣ EMAIL
-    // if (!user.isVerified) {
-    //   return res.status(403).json({ message: 'Το email δεν έχει επιβεβαιωθεί' });
-    // }
-
     // ΔΗΜΙΟΥΡΓΙΑ JWT TOKEN
     const token = jwt.sign(
       { id: user._id, role: user.role },

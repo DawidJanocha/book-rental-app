@@ -5,7 +5,12 @@ import { useNavigate } from 'react-router-dom';
 import SellerStoreForm from '../components/SellerStoreForm';
 
 
-
+// Σελίδα δημιουργίας καταστήματος για πωλητές
+// Περιλαμβάνει φόρμα για καταχώρηση στοιχείων καταστήματος και κατηγοριών βιβλίων
+// Μετά την υποβολή, αποστέλλει τα δεδομένα στο backend και κατευθύνει τον χρήστη στο dashboard του πωλητή
+// Χρησιμοποιεί το axios για αιτήματα HTTP και το useNavigate για πλοήγηση
+// Περιλαμβάνει πεδία για όνομα καταστήματος, ΑΦΜ, δι εύθυνση, ταχυδρομικό κώδικα, νομό, τηλέφωνο, email και κατηγορίες βιβλίων
+// Προσφέρει δυνατότητα προσθήκης κατηγοριών βιβλίων με δυναμική προσθήκη πεδίων      
   const StoreCreate = () => {
     const [formData, setFormData] = useState({
     storeName: '',
@@ -18,14 +23,20 @@ import SellerStoreForm from '../components/SellerStoreForm';
     bookCategories: [],
   });
 
+  // Κατάσταση για τις κατηγορίες βιβλίων 
   const [categoriesInput, setCategoriesInput] = useState('');
   const navigate = useNavigate();
   const token = localStorage.getItem('token');
 
+
+
+  // Έλεγχος αν ο χρήστης είναι συνδεδεμένος
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
+
+  // Προσθήκη κατηγορίας βιβλίου
   const handleAddCategory = () => {
     if (categoriesInput.trim()) {
       setFormData((prev) => ({
@@ -36,6 +47,9 @@ import SellerStoreForm from '../components/SellerStoreForm';
     }
   };
 
+
+  // Υποβολή της φόρμας για δημιουργία καταστήματος
+  // Στέλνει τα δεδομένα στο backend και αν όλα είναι εντάξει,
    const handleSubmit = async (e) => {
     e.preventDefault();
     try {

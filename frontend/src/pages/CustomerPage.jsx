@@ -3,7 +3,7 @@ import axios from '../utils/axiosInstance';
 import { useCart } from '../context/CartContext';
 import { Link } from 'react-router-dom';
 
-// 🔸 Σελίδα Πελάτη – Προβολή και ενοικία διαθέσιμων βιβλίων
+//Σελίδα Πελάτη – Προβολή και ενοικία διαθέσιμων βιβλίων
 const CustomerPage = () => {
   const [books, setBooks] = useState([]); // Όλα τα βιβλία
   const [filteredBooks, setFilteredBooks] = useState([]); // Βιβλία μετά από φίλτρα
@@ -15,7 +15,7 @@ const CustomerPage = () => {
   const { addToCart , cartItems} = useCart(); // Access στο καλάθι
   const isLoggedIn = !!localStorage.getItem('token'); // Έλεγχος σύνδεσης
 
-  // 🔹 Φόρτωση όλων των διαθέσιμων βιβλίων
+  //Φόρτωση όλων των διαθέσιμων βιβλίων
   useEffect(() => {
     const fetchBooks = async () => {
       try {
@@ -29,7 +29,7 @@ const CustomerPage = () => {
     fetchBooks();
   }, []);
 
-  // 🔹 Διαχείριση φίλτρων (store + τίτλος)
+  //Διαχείριση φίλτρων (store + τίτλος)
   useEffect(() => {
     let results = books;
 
@@ -47,11 +47,12 @@ const CustomerPage = () => {
     }
 
     results = results.filter((book) => Number(book.quantity) > 0);
-
+// Εξασφαλίζουμε ότι υπάρχουν διαθέσιμα αντίτυπα
     setFilteredBooks(results);
-    setCurrentPage(1); // reset page
+    // Επαναφορά σελίδας όταν αλλάζουν τα αποτελέσματα
+    setCurrentPage(1); 
   }, [books, selectedStore, searchTerm]);
-
+  // Διαχείριση ενοικίασης βιβλίου
   const handleRent = (book) => {
     const storeId = typeof book.store === 'string' ? book.store : book.store?._id;
     const cartItem = cartItems.find((item) => item._id === book._id);
@@ -69,8 +70,7 @@ const CustomerPage = () => {
       quantityAvailable: book.quantity,
     });
   };
-
-  // pagination
+// Υπολογισμός σελίδων για pagination
   const indexOfLastBook = currentPage * booksPerPage;
   const indexOfFirstBook = indexOfLastBook - booksPerPage;
   const currentBooks = filteredBooks.slice(indexOfFirstBook, indexOfLastBook);
