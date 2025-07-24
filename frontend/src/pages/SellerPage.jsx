@@ -632,106 +632,156 @@ const calculateTotal = (order) => {
 
 {/*Στατιστικά πωλήσεων*/}
 {activeTab === 'salesStats' && salesStats && (
-  <div className="flex flex-col items-center justify-center w-full">
-    <h2 className="text-3xl font-bold mb-6 text-white">📊 ΣΤΑΤΙΣΤΙΚΑ ΠΩΛΗΣΕΩΝ</h2>
+  <div className="flex flex-col items-center justify-center w-full py-8 px-4">
+   
+<div className="bg-gray-950 border border-blue-500 rounded-2xl shadow-lg p-6 mb-2 w-[80%] mx-auto">
+  {/* Grid 2-στήλες */}
+  <div className="grid grid-cols-1 md:grid-cols-2 gap-10 items-center">
 
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full max-w-7xl px-4">
-      {/* Στήλη 1: Πωλήσεις */}
-      <div className="flex flex-col items-center">
-       
+    {/* Αριστερά: Τίτλος */}
+    <div className="flex justify-center">
+      <h3 className="text-2xl font-semibold text-green-300 text-center">
+        📊 Στατιστικά Πωλήσεων
+      </h3>
+    </div>
 
-        {salesStats?.bestSellers?.length > 0 && (
-          <div className="w-full">
-            <h4 className="text-xl font-semibold mt-6 mb-2 text-yellow-300">🌟 Best Sellers</h4>
-             <SalesStatsPieChart bestSellers={salesStats.bestSellers} />
-            <table className="w-full text-sm text-left border border-yellow-500 rounded overflow-hidden">
-              <thead className="bg-yellow-500 text-black">
-                <tr>
-                  <th className="p-2">#</th>
-                  <th className="p-2">Τίτλος</th>
-                  <th className="p-2">Πωλήσεις</th>
-                </tr>
-              </thead>
-              <tbody>
-                {salesStats.bestSellers.map((b, i) => (
-                  <tr key={i} className="bg-yellow-100 hover:bg-yellow-200 text-black">
-                    <td className="p-2">{i + 1}</td>
-                    <td className="p-2">{b.title}</td>
-                    <td className="p-2">{b.sold}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </div>
+    {/* Δεξιά: Πλαίσιο στατιστικών */}
+    <div className="flex justify-center">
+      <div className="bg-gray-900 rounded-xl shadow-lg p-6 border border-blue-400 w-full max-w-[400px]">
+        <div className="space-y-4 text-sm text-gray-200">
+          <p>📦 <strong>Παραγγελίες:</strong> {salesStats.orderCount}</p>
+          <p>📚 <strong>Βιβλία:</strong> {salesStats.booksSold}</p>
+          <p>💶 <strong>Έσοδα:</strong> {Number(salesStats.totalRevenue).toFixed(2)} €</p>
 
-      {/* Στήλη 2: Πελάτες */}
-      <div className="flex flex-col items-center">
-        {salesStats?.customers?.length > 0 && (
-          <div className="w-full">
-            <h4 className="text-2xl font-bold text-purple-300 flex items-center mb-4">
-              <span className="mr-2">👥</span> Πελάτες
-            </h4>
-            <div className="overflow-x-auto rounded shadow">
-              <table className="min-w-full text-sm text-left border border-gray-700 bg-gray-900">
-                <thead className="bg-gray-800 text-gray-300 uppercase tracking-wider text-xs">
-                  <tr>
-                    <th className="px-3 py-2">#</th>
-                    <th className="px-3 py-2">Username</th>
-                    <th className="px-3 py-2">Όνομα</th>
-                    <th className="px-3 py-2">Επώνυμο</th>
-                    <th className="px-3 py-2">Email</th>
-                    <th className="px-3 py-2">Περιοχή</th>
-                    <th className="px-3 py-2">Τηλέφωνο</th>
-                    <th className="px-3 py-2">Διεύθυνση</th>
-                    <th className="px-3 py-2">Τ.Κ.</th>
-                    <th className="px-3 py-2">Κουδούνι</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {salesStats.customers.map((c, i) => (
-                    <tr
-                      key={c._id || i}
-                      className="border-t border-gray-700 hover:bg-gray-800 transition duration-200"
-                    >
-                      <td className="px-3 py-2 font-medium text-gray-400">{i + 1}</td>
-                      <td className="px-3 py-2">{c.username}</td>
-                      <td className="px-3 py-2">{c.firstName || '-'}</td>
-                      <td className="px-3 py-2">{c.lastName || '-'}</td>
-                      <td className="px-3 py-2">{c.email}</td>
-                      <td className="px-3 py-2">{c.region || '-'}</td>
-                      <td className="px-3 py-2">{c.phone || '-'}</td>
-                      <td className="px-3 py-2">{c.street || '-'}</td>
-                      <td className="px-3 py-2">{c.postalCode || '-'}</td>
-                      <td className="px-3 py-2">{c.doorbell || '-'}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        )}
-      </div>
-
-      {/* Στήλη 3: Πληροφορίες */}
-      
-      <div className="bg-gray-900 text-white p-6 rounded shadow w-full space-y-2">
-        <p>📦 Παραγγελίες: <strong>{salesStats?.orderCount}</strong></p>
-        <TopOrdersChart topOrders={salesStats.topOrders} />
-        {salesStats?.lastOrder && (
-          <p className="text-sm text-gray-400 ml-4">
-            Τελευταία: {new Date(salesStats.lastOrder.createdAt).toLocaleString('el-GR')} - {salesStats.lastOrder.productName} ({salesStats.lastOrder.totalPrice} €)
-          </p>
-        )}
-        <p>💶 Έσοδα: <strong>{Number(salesStats.totalRevenue).toFixed(2)} €</strong></p>
-        {salesStats?.lastOrder && (
-          <p className="text-sm text-green-400 ml-4">+{salesStats.lastOrder.totalPrice} € τελευταία είσπραξη</p>
-        )}
-        <SalesRevenueLineChart dailyRevenue={salesStats.dailyRevenue} />
-        <p>📚 Βιβλία: <strong>{salesStats.booksSold}</strong></p>
+          {salesStats?.lastOrder && (
+            <>
+              <p className="text-green-400 text-sm">
+                +{salesStats.lastOrder.totalPrice} € τελευταία είσπραξη
+              </p>
+              <p className="text-gray-400 text-xs">
+                Τελευταία: {new Date(salesStats.lastOrder.createdAt).toLocaleString('el-GR')}<br />
+                <span className="italic">
+                  {salesStats.lastOrder.productName} ({salesStats.lastOrder.totalPrice} €)
+                </span>
+              </p>
+            </>
+          )}
+        </div>
       </div>
     </div>
+
+  </div>
+</div>
+
+
+
+
+<div className="bg-gray-950 border border-yellow-500 rounded-2xl shadow-lg p-6 mb-2 w-[80%] mx-auto">
+
+  {/* === Best Sellers Section === */}
+  <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-10">
+
+    {/* === Αριστερά: Pie Chart === */}
+    <div className="flex flex-col items-center justify-center">
+      
+      <div className="w-full max-w-[350px] h-80">
+        <SalesStatsPieChart bestSellers={salesStats.bestSellers} />
+      </div>
+    </div>
+
+    {/* === Δεξιά: Πίνακας Προϊόντων ή Ο,τι Θες === */}
+    <div className="flex items-center justify-center">
+      <div className="w-full max-w-[400px]">
+        {/* Εδώ βάλε πίνακα / λίστα προϊόντων */}
+        {/* Πχ: <TopBestSellerList data={salesStats.bestSellers} /> */}
+        <h3 className="text-2xl font-semibold text-green-300 mb-4 text-center">
+        🌟 Best Sellers
+      </h3>
+       
+      </div>
+    </div>
+
+  </div>
+</div>
+
+  
+ 
+
+
+
+<div className="bg-gray-950 border border-green-400 rounded-2xl shadow-lg p-6 mb-2 w-[80%] mx-auto">
+  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
+    {/* Left column with title */}
+    <div className="flex justify-center items-center h-full">
+      <h3 className="text-2xl font-semibold text-green-300 text-center">📈 Κορυφαίες Παραγγελίες</h3>
+    </div>
+
+    {/* Right column with chart */}
+    <div className="h-[400px] bg-gray-900 p-4 rounded shadow">
+      <TopOrdersChart topOrders={salesStats.topOrders} />
+    </div>
+  </div>
+</div>
+
+
+
+<div className="bg-gray-950 border border-green-400 rounded-2xl shadow-lg p-6 w-[80%] mx-auto">
+  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
+    {/* Left column with chart */}
+    <div className="h-[400px] bg-gray-900 p-4 rounded shadow">
+      <SalesRevenueLineChart dailyRevenue={salesStats.dailyRevenue} />
+    </div>
+
+    {/* Right column with title */}
+    <div className="flex justify-center items-center h-full">
+      <h3 className="text-2xl font-semibold text-green-300 text-center">📊 Έσοδα ανά Ημέρα</h3>
+    </div>
+  </div>
+</div>
+     <div
+  className="bg-white dark:bg-gray-900 rounded-xl shadow-lg p-6  mb-2 border border-purple-400  w-[80%] mx-auto "
+  style={{ marginTop: '32px' }} // ή μπορείς να βάλεις mt-8 αν θες Tailwind
+>
+  <h3 className="text-2xl font-semibold mb-6 text-purple-300">👥 Πελάτες</h3>
+  <div className="overflow-x-auto rounded border border-gray-700">
+    <table className="min-w-full text-sm text-left bg-gray-900 text-white">
+      <thead className="bg-gray-800 text-gray-300 uppercase text-xs">
+        <tr>
+          <th className="px-3 py-2">#</th>
+          <th className="px-3 py-2">Username</th>
+          <th className="px-3 py-2">Όνομα</th>
+          <th className="px-3 py-2">Επώνυμο</th>
+          <th className="px-3 py-2">Email</th>
+          <th className="px-3 py-2">Περιοχή</th>
+          <th className="px-3 py-2">Τηλέφωνο</th>
+          <th className="px-3 py-2">Διεύθυνση</th>
+          <th className="px-3 py-2">Τ.Κ.</th>
+          <th className="px-3 py-2">Κουδούνι</th>
+        </tr>
+      </thead>
+      <tbody>
+        {salesStats.customers.map((c, i) => (
+          <tr key={c._id || i} className="border-t border-gray-700 hover:bg-gray-800">
+            <td className="px-3 py-2">{i + 1}</td>
+            <td className="px-3 py-2">{c.username}</td>
+            <td className="px-3 py-2">{c.firstName || '-'}</td>
+            <td className="px-3 py-2">{c.lastName || '-'}</td>
+            <td className="px-3 py-2">{c.email}</td>
+            <td className="px-3 py-2">{c.region || '-'}</td>
+            <td className="px-3 py-2">{c.phone || '-'}</td>
+            <td className="px-3 py-2">{c.street || '-'}</td>
+            <td className="px-3 py-2">{c.postalCode || '-'}</td>
+            <td className="px-3 py-2">{c.doorbell || '-'}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+
+
+
   </div>
 )}
 

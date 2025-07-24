@@ -16,7 +16,7 @@ const transporter = nodemailer.createTransport({
 const sendToAdmin = async ({ name, email, message }) => {
   return transporter.sendMail({
     from: `"Επικοινωνία Πελάτη" <${process.env.MAIL_USER}>`,
-    to: 'djnaocha1994@gmail.com',
+    to: 'djanocha1994@gmail.com',
     subject: '📬 Νέο Μήνυμα από Πελάτη',
     html: `
       <h3>Ο πελάτης έστειλε μήνυμα:</h3>

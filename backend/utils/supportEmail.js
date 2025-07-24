@@ -29,7 +29,7 @@ export const sendSupportToAdmin = async ({ name, email, message }) => {
 
   await transporter.sendMail({
     from: `"Book Rental Support" <${process.env.MAIL_USER}>`,
-    to: 'djnaocha1994@gmail.com',
+    to: 'djanocha1994@gmail.com',
     subject: '📨 Νέο Μήνυμα Υποστήριξης',
     html,
   });
