@@ -160,7 +160,3 @@ cd ../frontend && npm start
 > Developer: **[Your Full Name]**  
 
 ---
-
-## 📝 License
-
-This project is licensed under the **MIT License**.
