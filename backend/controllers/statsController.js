@@ -50,14 +50,16 @@ export const getSellerStats = async (req, res) => {
     })).sort((a, b) => new Date(a.date) - new Date(b.date));
 
     // 🧾 Τελευταία αποδεκτή παραγγελία
-    const acceptedOrders = orders.filter(o => o.status === 'accepted');
+    const acceptedOrders = orders.filter(o => o.status === 'confirmed');
     if (acceptedOrders.length > 0) {
       const recent = acceptedOrders[0];
+      console.log('Τελευταία αποδεκτή παραγγελία:', recent);
       lastOrder = {
         createdAt: recent.createdAt,
-        totalPrice: recent.totalPrice.toFixed(2),
+        totalPrice: recent.totalPrice ? Number(recent.totalPrice.toString()).toFixed(2) : '0.00',
         productName: recent.items[0]?.title || '(χωρίς προϊόν)',
       };
+      console.log('Τελευταία αποδεκτή παραγγελία:', lastOrder);
     }
 
     // 💰 Top 10 Orders by TotalPrice
@@ -67,7 +69,7 @@ export const getSellerStats = async (req, res) => {
       .map(o => ({
         _id: o._id,
         customer: o.customer,
-        totalPrice: Number(o.totalPrice.toFixed(2)),
+        totalPrice: Number(o.totalPrice.toString()).toFixed(2),
         items: o.items,
         createdAt: o.createdAt,
       }));
@@ -104,7 +106,7 @@ export const getSellerStats = async (req, res) => {
       bestSellers,
       customers,
       dailyRevenue: dailyRevenueArray,
-      lastOrder: orders[orders.length - 1] || null, 
+      lastOrder: lastOrder || null, 
       topOrders,
     });
   } catch (err) {

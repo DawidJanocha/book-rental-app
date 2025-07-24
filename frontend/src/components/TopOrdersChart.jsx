@@ -23,7 +23,7 @@ const TopOrdersChart = ({ topOrders }) => {
   }
 
   const data = {
-    labels: topOrders.map((order) => `#${order._id.slice(-5)} | ${order.date}`),
+    labels: topOrders.map((order) => `#${order._id.slice(-5)} | ${order.createdAt}`),
     datasets: [
       {
         label: '€ Ποσό',
@@ -39,7 +39,8 @@ const TopOrdersChart = ({ topOrders }) => {
     responsive: true,
     plugins: {
       legend: {
-        labels: { color: 'white' },
+        // labels: { color: 'white' },
+        display: false,
       },
     },
     scales: {

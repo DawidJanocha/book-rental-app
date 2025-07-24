@@ -34,7 +34,7 @@ app.use('/api/order', orderRoutes);
 app.use('/api/user', userRoutes); 
 app.use('/api/sales', salesRoutes);
 app.use('/api', statsRoutes);
-app.use('/contact', contactRoutes);
+app.use('/api/contact', contactRoutes);
 
 
 // Connect DB & Start Server
