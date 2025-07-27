@@ -22,7 +22,7 @@ export const register = async (req, res) => {
     // ΕΛΕΓΧΟΣ ΑΝ ΥΠΑΡΧΕΙ ΗΔΗ ΧΡΗΣΤΗΣ ΜΕ ΤΟ ΙΔΙΟ EMAIL
     const existingUser = await User.findOne({ email });
     if (existingUser) {
-      return res.status(400).json({ message: 'Ο χρήστης υπάρχει ήδη' });
+      return res.status(400).json({ message: 'Ο χρήστης υπάρχει ήδη' });6
     }
 
     // ΚΡΥΠΤΟΓΡΑΦΗΣΗ ΚΩΔΙΚΟΥ
@@ -44,7 +44,7 @@ export const register = async (req, res) => {
     await newUser.save();
 
     // ΔΗΜΙΟΥΡΓΙΑ ΚΑΙ ΑΠΟΣΤΟΛΗ EMAIL ΕΠΙΒΕΒΑΙΩΣΗΣ
-    const verificationUrl = `http://localhost:3000/verify-email?token=${verificationToken}`;
+    const verificationUrl = `http://localhost:5001/api/auth/verify-email?token=${verificationToken}`;
     const html = getVerificationEmailHtml(username, verificationUrl);
 
     await sendEmail({
@@ -79,6 +79,7 @@ export const getProfile = asyncHandler(async (req, res) => {
 });
 
 // ΕΠΙΒΕΒΑΙΩΣΗ EMAIL ΧΡΗΣΤΗ
+// ✅ ΕΠΙΒΕΒΑΙΩΣΗ EMAIL ΧΡΗΣΤΗ
 export const verifyEmail = async (req, res) => {
   try {
     const { token } = req.query;
@@ -88,21 +89,35 @@ export const verifyEmail = async (req, res) => {
     }
 
     const user = await User.findOne({ verificationToken: token });
+
+    // ✅ Αν δεν βρέθηκε χρήστης
     if (!user) {
-      return res.status(400).json({ message: 'Το token δεν είναι έγκυρο ή έχει ήδη χρησιμοποιηθεί' });
+      return res.status(400).json({
+        message: 'Το token δεν είναι έγκυρο ή έχει ήδη χρησιμοποιηθεί',
+      });
     }
 
-    // ΕΠΙΒΕΒΑΙΩΣΗ ΧΡΗΣΤΗ
+    // ✅ Αν ο χρήστης έχει ήδη επιβεβαιωθεί
+    if (user.isVerified) {
+      return res.status(200).json({
+        message: 'Ο λογαριασμός έχει ήδη επιβεβαιωθεί',
+      });
+    }
+
+    // ✅ ΕΠΙΒΕΒΑΙΩΣΗ ΧΡΗΣΤΗ
     user.isVerified = true;
     user.verificationToken = undefined;
     await user.save();
 
-    res.status(200).json({ message: 'Το email επιβεβαιώθηκε με επιτυχία' });
+    res.status(200).json({
+      message: 'Το email επιβεβαιώθηκε με επιτυχία',
+    });
   } catch (err) {
     console.error('Σφάλμα επιβεβαίωσης email:', err);
     res.status(400).json({ message: 'Σφάλμα κατά την επιβεβαίωση email' });
   }
 };
+
 
 // ΣΥΝΔΕΣΗ ΧΡΗΣΤΗ (CUSTOMER Η SELLER)
 export const login = async (req, res) => {
@@ -115,18 +130,27 @@ export const login = async (req, res) => {
       return res.status(404).json({ message: 'Ο χρήστης δεν βρέθηκε' });
     }
 
+    // ✅ ΠΑΡΑΚΑΜΨΗ ΕΠΙΒΕΒΑΙΩΣΗΣ EMAIL ΜΟΝΟ ΓΙΑ ADMIN
+    if (user.role !== 'admin' && !user.isVerified) {
+      return res.status(403).json({ message: 'Ο λογαριασμός δεν έχει επιβεβαιωθεί μέσω email' });
+    }
+
     // ΕΛΕΓΧΟΣ ΚΩΔΙΚΟΥ
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
       return res.status(401).json({ message: 'Λανθασμένος κωδικός' });
     }
 
+    // ✅ Ενημέρωση lastLogin
+    user.lastLogin = new Date();
+    await user.save();
+
     // ΔΗΜΙΟΥΡΓΙΑ JWT TOKEN
     const token = jwt.sign(
       { id: user._id, role: user.role },
       process.env.JWT_SECRET,
       { expiresIn: '30d' }
-    );  
+    );
 
     console.log(`🔐 Σύνδεση χρήστη: ${user.username} | Ρόλος: ${user.role} | Email: ${user.email}`);
 
@@ -137,6 +161,7 @@ export const login = async (req, res) => {
         id: user._id,
         username: user.username,
         role: user.role,
+        lastLogin: user.lastLogin, // optional: στείλτο στο frontend αν το χρειάζεσαι άμεσα
       },
     });
   } catch (err) {
@@ -146,6 +171,3 @@ export const login = async (req, res) => {
     });
   }
 };
-
-
-

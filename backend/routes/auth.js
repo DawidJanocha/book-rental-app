@@ -11,7 +11,29 @@ router.post('/register', register);
 router.get('/verify/:token', verifyEmail);
 
 //Route για Verification email
-router.get('/verify-email', verifyEmail);
+router.get('/verify-email', async (req, res) => {
+ const { token } = req.query;
+
+  if (!token) {
+    return res.status(400).json({ message: 'Missing verification token' });
+  }
+
+  try {
+    const user = await User.findOne({ verificationToken: token });
+
+    if (!user) {
+      return res.status(404).json({ message: 'Invalid or expired token' });
+    }
+
+    user.isVerified = true;
+    user.verificationToken = undefined; // optional
+    await user.save();
+
+    return res.status(200).json({ message: '✅ Email verified successfully!' });
+  } catch (err) {
+    return res.status(500).json({ message: 'Server error' });
+  }
+});
 
 // Προφίλ χρήστη (με token)
 router.get('/profile', protect, getProfile);

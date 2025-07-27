@@ -18,7 +18,7 @@ import ForbiddenPage from './pages/ForbiddenPage';
 import Footer from './components/Footer';
 import MainPage from './pages/MainPage';
 import LoginModal from './components/LoginModal';
-
+import AdminDashboard from './pages/AdminDashboard';
 import ContactForm from './pages/ContactForm';
 
 // Κύρια συνάρτηση του App που περιέχει τις διαδρομές και το περιεχόμενο της εφαρμογής
@@ -59,6 +59,7 @@ function AppContent() {
         <Route path="/forbidden" element={<ForbiddenPage />} />  {/* // Σελίδα απαγορευμένης πρόσβασης για χρήστες που δεν έχουν δικαίωμα πρόσβασης σε συγκεκριμένες λειτουργίες*/}
         <Route path="/store/:storeId" element={<StoreDetails />} />  {/* // Σελίδα προβολής καταστήματος με βάση το storeId*/}
         <Route path="/contact" element={<ContactForm />} /> {/* // Σελίδα επικοινωνίας για αποστολή μηνυμάτων ή ερωτήσεων*/}    
+        <Route path="/admin-dashboard" element={<AdminDashboard />} />
           <Route
           path="/order-history"
           element={
@@ -93,5 +94,8 @@ function App() {
     </AuthProvider>
   );
 }
+
+
+
 
 export default App;

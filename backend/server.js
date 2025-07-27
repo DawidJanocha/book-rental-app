@@ -13,7 +13,7 @@ import statsRoutes from './routes/stats.js';
 import salesRoutes from './routes/salesRoutes.js';
 import userRoutes from './routes/user.js'; 
 import contactRoutes from './routes/contact.js';
-
+import adminRoutes from './routes/admin.js';
 
 
 
@@ -21,8 +21,9 @@ dotenv.config();
 
 const app = express();
 
+
 // Middleware
-app.use(cors()); 
+app.use(cors({origin: 'http://localhost:3000',credentials: true,}));
 app.use(express.json());
 
 // Routes
@@ -35,6 +36,7 @@ app.use('/api/user', userRoutes);
 app.use('/api/sales', salesRoutes);
 app.use('/api', statsRoutes);
 app.use('/api/contact', contactRoutes);
+app.use('/api/admin', adminRoutes);
 
 
 // Connect DB & Start Server

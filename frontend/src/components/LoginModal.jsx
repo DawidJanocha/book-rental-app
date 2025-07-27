@@ -34,10 +34,12 @@ function LoginModal({ onClose }) {
         setUser(user); // ✅ ΤΟ ΣΗΜΑΝΤΙΚΟ FIX
 
         if (user.role === 'customer') {
-          navigate('/books');
-        } else if (user.role === 'seller') {
-          navigate('/seller');
-        }
+  navigate('/books');
+} else if (user.role === 'seller') {
+  navigate('/seller');
+} else if (user.role === 'admin') {
+  navigate('/admin-dashboard'); // ✅ ΤΟ ΝΕΟ REDIRECT
+}
 
         onClose();
       }
@@ -77,7 +79,7 @@ function LoginModal({ onClose }) {
                 className="bg-gray-800 p-2 rounded text-white border border-gray-600"
               >
                 <option value="customer">Πελάτης</option>
-                <option value="partner">Συνεργάτης</option>
+                <option value="seller">Συνεργάτης</option>
               </select>
             </>
           )}

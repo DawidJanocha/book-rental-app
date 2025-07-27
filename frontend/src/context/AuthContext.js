@@ -12,6 +12,26 @@ export const AuthProvider = ({ children }) => {
 
   const [loading, setLoading] = useState(true);
 
+
+  
+// ✅ Ανίχνευση admin και trigger ενεργειών
+useEffect(() => {
+  if (!user || user.role !== 'admin') return;
+
+  const fetchAdminData = async () => {
+    try {
+      const { data } = await axios.get('/admin/stats'); // παράδειγμα
+      console.log('📊 Admin stats:', data);
+      // μπορείς να αποθηκεύσεις κάπου τα stats αν θέλεις
+    } catch (err) {
+      console.error('❌ Admin fetch error:', err);
+    }
+  };
+
+  fetchAdminData();
+}, [user]);
+
+
  // ✅ ΕΠΑΛΗΘΕΥΣΗ TOKEN – ΜΟΝΟ ΑΝ ΥΠΑΡΧΕΙ
 useEffect(() => {
   const verifyUser = async () => {

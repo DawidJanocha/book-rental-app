@@ -1,4 +1,5 @@
 // src/components/Navbar.jsx
+
 import React, { useEffect, useState, useContext } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
@@ -10,10 +11,8 @@ const Navbar = ({ onLoginClick }) => {
   const { cartItems } = useCart();
   const { user, logout } = useContext(AuthContext);
 
-  // ΚΡΑΤΑΜΕ ΚΑΤΑΣΤΑΣΗ ΓΙΑ ΝΑ ΔΕΙΧΝΟΥΜΕ Η ΟΧΙ ΤΟ DROPDOWN
   const [showDropdown, setShowDropdown] = useState(false);
 
-  // ΕΛΕΓΧΟΥΜΕ ΑΝ Η URL ΠΕΡΙΕΧΕΙ login=1 ΓΙΑ ΝΑ ΑΝΟΙΞΕΙ ΤΟ MODAL
   useEffect(() => {
     if (new URLSearchParams(location.search).get('login') === '1') {
       onLoginClick();
@@ -21,7 +20,6 @@ const Navbar = ({ onLoginClick }) => {
     }
   }, [location, onLoginClick]);
 
-  // LOGOUT ΤΟΥ ΧΡΗΣΤΗ
   const handleLogout = () => {
     logout();
     setShowDropdown(false);
@@ -29,151 +27,107 @@ const Navbar = ({ onLoginClick }) => {
   };
 
   return (
-    <>
-      <nav style={styles.navbar}>
-        {/* ΛΟΓΟΤΥΠΟ ΠΟΥ ΚΑΝΕΙ REDIRECT ΣΤΗΝ ΑΡΧΙΚΗ */}
-        <div style={styles.logo} onClick={() => navigate('/')}>
-          📚 Bookshop App
-        </div>
+    <nav className="flex justify-between items-center px-4 py-3 bg-white border-b border-gray-200 sticky top-0 z-50">
+      <div
+        className="text-xl font-bold cursor-pointer"
+        onClick={() => navigate('/')}
+      >
+        📚 Bookshop App
+      </div>
 
-        <div style={styles.rightSection}>
-          {/* ΑΝ ΔΕΝ ΕΙΝΑΙ ΣΥΝΔΕΔΕΜΕΝΟΣ Ο ΧΡΗΣΤΗΣ */}
-          {!user && (
-            <button onClick={onLoginClick} style={styles.button}>
-              🔐 Σύνδεση / Εγγραφή
+      <div className="flex items-center gap-4 relative">
+        {!user && (
+          <button
+            onClick={onLoginClick}
+            className="px-4 py-2 bg-gray-100 border border-gray-300 rounded hover:bg-gray-200"
+          >
+            🔐 Σύνδεση / Εγγραφή
+          </button>
+        )}
+
+        {user && (
+          <>
+            <button
+              onClick={() => navigate('/books')}
+              className="px-4 py-2 bg-gray-100 border border-gray-300 rounded hover:bg-gray-200"
+            >
+              📖 Βιβλία
             </button>
-          )}
 
-          {/* ΑΝ ΕΙΝΑΙ ΣΥΝΔΕΔΕΜΕΝΟΣ */}
-          {user && (
-            <>
-              {/* ΠΛΗΚΤΡΟ ΒΙΒΛΙΑ */}
-              <button onClick={() => navigate('/books')} style={styles.button}>
-                📖 Βιβλία
+            {user.role === 'customer' && (
+              <button
+                onClick={() => navigate('/cart')}
+                className="px-4 py-2 bg-gray-100 border border-gray-300 rounded hover:bg-gray-200"
+              >
+                🛒 Καλάθι ({cartItems.reduce((sum, item) => sum + item.quantity, 0)})
               </button>
+            )}
 
-              {/* ΑΝ ΕΙΝΑΙ CUSTOMER, ΔΕΙΧΝΟΥΜΕ ΚΑΛΑΘΙ */}
-              {user.role === 'customer' && (
-                <button onClick={() => navigate('/cart')} style={styles.button}>
-                  🛒 Καλάθι ({cartItems.reduce((sum, item) => sum + item.quantity, 0)})
-                </button>
-              )}
+            <span className="font-semibold text-gray-700">
+              👤 {user.username}
+            </span>
 
-              {/* ΠΡΟΒΟΛΗ USERNAME */}
-              <span style={styles.username}>👤 {user.username}</span>
-
-              {/* BURGER MENU ΓΙΑ ΠΡΟΦΙΛ / ΠΙΝΑΚΑ / ΑΠΟΣΥΝΔΕΣΗ */}
-              <div style={styles.burgerWrapper}>
-                <div style={styles.burger} onClick={() => setShowDropdown((prev) => !prev)}>
-                  <div style={styles.line}></div>
-                  <div style={styles.line}></div>
-                  <div style={styles.line}></div>
-                </div>
-
-                {/* DROPDOWN ΜΕΝΟΥ */}
-                {showDropdown && (
-                  <div style={styles.dropdown}>
-                    {user.role === 'customer' && (
-                      <>
-                        <button onClick={() => navigate('/account')} style={styles.dropdownItem}>
-                          👤 Λογαριασμός
-                        </button>
-                        <button onClick={() => navigate('/order-history')} style={styles.dropdownItem}>
-                          🧾 Παραγγελίες
-                        </button>
-                      </>
-                    )}
-                    {user.role === 'seller' && (
-                      <button onClick={() => navigate('/seller')} style={styles.dropdownItem}>
-                        🧑‍💼 Πίνακας Πωλητή
-                      </button>
-                    )}
-                    <button onClick={handleLogout} style={styles.dropdownItem}>
-                      🚪 Αποσύνδεση
-                    </button>
-                  </div>
-                )}
+            <div className="relative">
+              <div
+                className="flex flex-col gap-[4px] p-2 cursor-pointer"
+                onClick={() => setShowDropdown((prev) => !prev)}
+              >
+                <div className="w-[25px] h-[3px] bg-gray-800"></div>
+                <div className="w-[25px] h-[3px] bg-gray-800"></div>
+                <div className="w-[25px] h-[3px] bg-gray-800"></div>
               </div>
-            </>
-          )}
-        </div>
-      </nav>
-    </>
+
+              {showDropdown && (
+                <div className="absolute top-[2.5rem] right-0 bg-white shadow-lg rounded border border-gray-100 z-50">
+                  {user.role === 'customer' && (
+                    <>
+                      <button
+                        onClick={() => navigate('/account')}
+                        className="w-full text-left px-6 py-3 text-sm hover:bg-gray-100"
+                      >
+                        👤 Λογαριασμός
+                      </button>
+                      <button
+                        onClick={() => navigate('/order-history')}
+                        className="w-full text-left px-6 py-3 text-sm hover:bg-gray-100"
+                      >
+                        🧾 Παραγγελίες
+                      </button>
+                    </>
+                  )}
+
+                  {user.role === 'seller' && (
+                    <button
+                      onClick={() => navigate('/seller')}
+                      className="w-full text-left px-6 py-3 text-sm hover:bg-gray-100"
+                    >
+                      🧑‍💼 Πίνακας Πωλητή
+                    </button>
+                  )}
+
+                  {user.role === 'admin' && (
+                    <button
+                      onClick={() => navigate('/admin-dashboard')}
+                      className="w-full text-left px-6 py-3 text-sm hover:bg-gray-100"
+                    >
+                      🛠️ Admin Dashboard
+                    </button>
+                  )}
+
+                  <button
+                    onClick={handleLogout}
+                    className="w-full text-left px-6 py-3 text-sm hover:bg-gray-100"
+                  >
+                    🚪 Αποσύνδεση
+                  </button>
+                </div>
+              )}
+            </div>
+          </>
+        )}
+      </div>
+    </nav>
   );
 };
 
-// ΣΤΥΛ ΓΙΑ ΤΟ NAVBAR ΚΑΙ ΤΑ ΕΞΑΡΤΩΜΕΝΑ ΣΤΟΙΧΕΙΑ
-const styles = {
-  navbar: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: '1rem',
-    backgroundColor: '#fff',
-    borderBottom: '1px solid #ccc',
-    position: 'sticky',
-    top: 0,
-    zIndex: 1000,
-  },
-  logo: {
-    fontSize: '1.5rem',
-    fontWeight: 'bold',
-    cursor: 'pointer',
-  },
-  rightSection: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '1rem',
-    position: 'relative',
-  },
-  button: {
-    padding: '0.4rem 1rem',
-    backgroundColor: '#f9f9f9',
-    border: '1px solid #ccc',
-    borderRadius: '4px',
-    cursor: 'pointer',
-  },
-  username: {
-    fontWeight: 'bold',
-    fontSize: '1rem',
-    color: '#333',
-  },
-  burgerWrapper: {
-    position: 'relative',
-    cursor: 'pointer',
-  },
-  burger: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '4px',
-    padding: '0.5rem',
-  },
-  line: {
-    width: '25px',
-    height: '3px',
-    backgroundColor: '#333',
-  },
-  dropdown: {
-    position: 'absolute',
-    top: '2.5rem',
-    right: 0,
-    backgroundColor: '#fff',
-    boxShadow: '0 4px 8px rgba(0,0,0,0.15)',
-    borderRadius: '4px',
-    overflow: 'hidden',
-    zIndex: 1001,
-  },
-  dropdownItem: {
-    padding: '0.75rem 1.5rem',
-    width: '100%',
-    backgroundColor: '#fff',
-    border: 'none',
-    textAlign: 'left',
-    cursor: 'pointer',
-    fontSize: '0.95rem',
-    borderBottom: '1px solid #eee',
-  },
-};
-
 export default Navbar;
-
