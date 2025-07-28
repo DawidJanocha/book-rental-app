@@ -1,11 +1,15 @@
+// src/utils/axiosInstance.js
 import axios from 'axios';
 
 const instance = axios.create({
-  baseURL: 'http://localhost:5001/api', // ✅ backend base
+  baseURL: 'http://localhost:5001/api',
   headers: {
     'Content-Type': 'application/json',
   },
 });
+
+// ✅ Global μεταβλητή για αποτυχημένα login
+let loginAttemptCount = 0;
 
 // interceptor για να προσθέτει το JWT σε κάθε request
 instance.interceptors.request.use(
@@ -19,19 +23,32 @@ instance.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-//  interceptor για χειρισμό error 401 κ.λπ.
+// interceptor για error handling
 instance.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response && error.response.status === 401) {
+    const status = error.response?.status;
+
+    // ✅ Αν είναι αποτυχημένο login
+    if (status === 401 && window.location.pathname === '/') {
+      loginAttemptCount++;
+
+      if (loginAttemptCount >= 3) {
+        window.dispatchEvent(new Event('login-lockout'));
+        loginAttemptCount = 0; // reset
+      }
+    }
+
+    if (status === 401) {
       localStorage.removeItem('token');
-      alert('🚫 Η συνεδρία σας έχει λήξει. Παρακαλώ συνδεθείτε ξανά.') ;
-      // Ανακατεύθυνση στην αρχική σελίδα ή σελίδα σύνδεσης
+      alert('🚫 Η συνεδρία σας έχει λήξει. Παρακαλώ συνδεθείτε ξανά.');
       window.location.href = '/';
     }
-    if (error.response && error.response.status === 403) {
+
+    if (status === 403) {
       window.location.href = '/forbidden';
     }
+
     return Promise.reject(error);
   }
 );

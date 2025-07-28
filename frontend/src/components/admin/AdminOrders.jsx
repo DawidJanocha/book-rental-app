@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import axios from '../../utils/axiosInstance';
 
 const AdminOrders = () => {
@@ -17,6 +17,7 @@ const AdminOrders = () => {
       setError('');
       const res = await axios.get('/order/admin/orders/all');
       setOrders(res.data);
+      console.log('📦 Orders loaded:', res.data.length);
     } catch (err) {
       console.error(err);
       setError('Σφάλμα κατά τη φόρτωση των παραγγελιών');
@@ -25,10 +26,24 @@ const AdminOrders = () => {
     }
   };
 
-  const filteredOrders = orders.filter((order) => {
-    if (activeFilter === 'all') return true;
-    return order.status === activeFilter;
-  });
+  const { filteredOrders, confirmedCount, pendingCount, cancelledCount } = useMemo(() => {
+    const filtered = orders.filter((order) => {
+      if (activeFilter === 'all') return true;
+      return order.status === activeFilter;
+    });
+    const confirmed = filtered.filter(order => order.status === 'confirmed').length;
+    const pending = filtered.filter(order => order.status === 'pending').length;
+    const declined = filtered.filter(order => order.status === 'declined').length;
+
+    console.log(`🔍 Filter: ${activeFilter} | Total: ${filtered.length} | ✅: ${confirmed} ⏳: ${pending} ❌: ${declined}`);
+
+    return {
+      filteredOrders: filtered,
+      confirmedCount: confirmed,
+      pendingCount: pending,
+      cancelledCount: declined
+    };
+  }, [orders, activeFilter]);
 
   const exportToCSV = () => {
     const header = ['Order ID', 'Ημερομηνία', 'Κατάστημα', 'Πελάτης', 'Σύνολο', 'Κατάσταση'];
@@ -88,7 +103,18 @@ const AdminOrders = () => {
 
   return (
     <div>
-      <h2 className="text-xl font-bold text-yellow-400 mb-4">📦 Όλες οι Παραγγελίες</h2>
+      <h2 className="text-xl font-bold text-yellow-400 flex items-center gap-2">
+        📦 Όλες οι Παραγγελίες
+        <span className="bg-green-600 text-white text-sm font-semibold px-2 py-0.5 rounded-full">
+          ✅ {confirmedCount}
+        </span>
+        <span className="bg-gray-600 text-white text-sm font-semibold px-2 py-0.5 rounded-full">
+          ⏳ {pendingCount}
+        </span>
+        <span className="bg-red-600 text-white text-sm font-semibold px-2 py-0.5 rounded-full">
+          ❌ {cancelledCount}
+        </span>
+      </h2>
 
       <div className="flex flex-wrap gap-4 mb-6">
         <button
@@ -120,6 +146,16 @@ const AdminOrders = () => {
           }`}
         >
           ❌ Ακυρωμένες
+        </button>
+        <button
+          onClick={() => setActiveFilter('all')}
+          className={`px-4 py-2 rounded-lg font-semibold ${
+            activeFilter === 'all'
+              ? 'bg-blue-500 text-black'
+              : 'bg-zinc-700 text-white hover:bg-zinc-600'
+          }`}
+        >
+          📄 Όλες
         </button>
 
         <button
