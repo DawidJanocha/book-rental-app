@@ -10,6 +10,7 @@ function LoginModal({ onClose }) {
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [failedAttempts, setFailedAttempts] = useState(0);
 
   const navigate = useNavigate();
   const { login, setUser } = useContext(AuthContext);
@@ -31,18 +32,24 @@ function LoginModal({ onClose }) {
         }
       } else {
         const { user, token } = await login(payload);
-        setUser(user); // ✅ ΤΟ ΣΗΜΑΝΤΙΚΟ FIX
+        setUser(user);
 
         if (user.role === 'customer') {
           navigate('/books');
         } else if (user.role === 'seller') {
           navigate('/seller');
+        } else if (user.role === 'admin') {
+          navigate('/admin-dashboard');
         }
 
         onClose();
       }
     } catch (err) {
-      alert('❌ Σφάλμα: ' + (err.response?.data?.message || 'Άγνωστο σφάλμα'));
+      setFailedAttempts((prev) => prev + 1);
+      if (failedAttempts + 1 >= 3) {
+        alert('🚫 Πολλές αποτυχημένες προσπάθειες. Δοκιμάστε ξανά αργότερα.');
+        onClose();
+      }
     }
   };
 
@@ -77,7 +84,7 @@ function LoginModal({ onClose }) {
                 className="bg-gray-800 p-2 rounded text-white border border-gray-600"
               >
                 <option value="customer">Πελάτης</option>
-                <option value="partner">Συνεργάτης</option>
+                <option value="seller">Συνεργάτης</option>
               </select>
             </>
           )}
@@ -109,11 +116,20 @@ function LoginModal({ onClose }) {
         </form>
 
         <div className="flex flex-col items-center mt-6 gap-2">
+          {!isRegister && (
+            <div className="mt-2 text-center">
+              <a href="#" className="text-sm text-blue-400 hover:underline">
+                Ξέχασες τον κωδικό σου;
+              </a>
+            </div>
+          )}
           <button
             onClick={() => setIsRegister(!isRegister)}
             className="text-blue-400 hover:underline text-sm"
           >
-            {isRegister ? 'Έχεις λογαριασμό; Σύνδεση' : 'Δεν έχεις λογαριασμό; Εγγραφή'}
+            {isRegister
+              ? 'Έχεις λογαριασμό; Σύνδεση'
+              : 'Δεν έχεις λογαριασμό; Εγγραφή'}
           </button>
         </div>
       </div>

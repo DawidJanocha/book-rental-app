@@ -1,5 +1,6 @@
 // routes/order.js
 import express from 'express';
+import isAdmin from '../middleware/isAdmin.js';
 import { protect } from '../middleware/authMiddleware.js';
 import Order from '../models/Order.js';
 import Store from '../models/Store.js';
@@ -12,9 +13,10 @@ import { isSeller, isCustomer } from '../middleware/authMiddleware.js';
 import { getSellerOrders } from '../controllers/orderController.js';
 import sendDeclinedOrderEmailToCustomer from '../utils/sendDeclinedOrderEmailToCustomer.js';
 import { getOrderHistory } from '../controllers/orderController.js';
-
+import { getAllPendingOrders, getAllOrders } from '../controllers/adminOrderController.js';
 const router = express.Router();
-
+router.get('/admin/orders/pending', protect, isAdmin, getAllPendingOrders);
+router.get('/admin/orders/all', protect, isAdmin, getAllOrders);
 //  Δημιουργία παραγγελίας από πελάτη
 router.post('/complete', protect, isCustomer ,completeOrder, async (req, res) => {
   try {

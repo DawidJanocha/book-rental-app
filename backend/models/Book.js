@@ -41,6 +41,17 @@ imageUrl: {
   type: String,
   default: '',
 },
+sales: [
+    {
+      customerId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+      },
+      purchasedAt: {
+        type: Date,
+      },
+    },
+  ],
 }, { timestamps: true });
 
 export default mongoose.model('Book', bookSchema);

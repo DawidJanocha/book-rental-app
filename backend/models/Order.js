@@ -33,6 +33,7 @@ const orderSchema = new mongoose.Schema({
     ref: 'User',
     required: true
   },
+  
   items: [orderItemSchema],
   comments: {
     type: String,

@@ -1,26 +1,22 @@
-// src/pages/EmailVerification.jsx
 import React, { useEffect, useState } from 'react';
-import { useParams, Link, useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation, Link } from 'react-router-dom';
 import axios from '../utils/axiosInstance';
 
-
-
-// Σελίδα επιβεβαίωσης email μετά την εγγραφή
 const EmailVerification = () => {
-  const { token } = useParams();
   const [status, setStatus] = useState('loading');
   const navigate = useNavigate();
+  const location = useLocation();
 
+  const searchParams = new URLSearchParams(location.search);
+  const token = searchParams.get('token');  // <-- από το query string
 
-// Ελέγχουμε αν υπάρχει token
   useEffect(() => {
     const verify = async () => {
       try {
-        const res = await axios.get(`/auth/verify/${token}`);
+        const res = await axios.get(`/auth/verify-email?token=${token}`);
+
         setStatus(res.data.message || '✅ Επιτυχής επιβεβαίωση! Μεταφορά σε λίγο...');
 
-        
-        // ➡️ Αν η επιβεβαίωση είναι επιτυχής, redirect σε 3 δευτερόλεπτα
         setTimeout(() => {
           navigate('/');
         }, 3000);
@@ -28,7 +24,7 @@ const EmailVerification = () => {
         setStatus(err?.response?.data?.message || '❌ Η επιβεβαίωση απέτυχε');
       }
     };
-    verify();
+    if (token) verify();
   }, [token, navigate]);
 
   return (
