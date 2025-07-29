@@ -111,7 +111,6 @@ export const getAllUsersDetailed = async (req, res) => {
       users.map(async (user) => {
         if (user.role === 'customer') {
           const userDetails = await UserDetails.findOne({user : user._id})
-          console.log("UserDetails",userDetails)
           return {
             _id: user._id,
             username: user.username,
