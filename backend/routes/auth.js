@@ -3,6 +3,7 @@ import express from 'express';
 import { register, login, verifyEmail, getProfile } from '../controllers/authController.js';
 const router = express.Router();
 import { protect } from '../middleware/authMiddleware.js';
+import User from '../models/User.js';
 
 // Route για εγγραφή
 router.post('/register', register);
@@ -13,6 +14,7 @@ router.get('/verify/:token', verifyEmail);
 //Route για Verification email
 router.get('/verify-email', async (req, res) => {
  const { token } = req.query;
+  
 
   if (!token) {
     return res.status(400).json({ message: 'Missing verification token' });
@@ -29,7 +31,8 @@ router.get('/verify-email', async (req, res) => {
     user.verificationToken = undefined; // optional
     await user.save();
 
-    return res.status(200).json({ message: '✅ Email verified successfully!' });
+    // ✅ Redirect to frontend after success
+    return res.redirect('http://localhost:3000/?loginModal=open');
   } catch (err) {
     return res.status(500).json({ message: 'Server error' });
   }

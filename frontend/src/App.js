@@ -1,5 +1,5 @@
 // src/App.js
-import React, { useContext, useState } from 'react';
+import React, { useContext, useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import CustomerPage from './pages/CustomerPage';
 import SellerPage from './pages/SellerPage';
@@ -20,6 +20,9 @@ import MainPage from './pages/MainPage';
 import LoginModal from './components/LoginModal';
 import AdminDashboard from './pages/AdminDashboard';
 import ContactForm from './pages/ContactForm';
+import { useLocation } from "react-router-dom";
+
+
 
 // Κύρια συνάρτηση του App που περιέχει τις διαδρομές και το περιεχόμενο της εφαρμογής
 // Χρησιμοποιεί το AuthProvider για να παρέχει το context του χρήστη σε όλη την εφαρμογή
@@ -27,6 +30,18 @@ import ContactForm from './pages/ContactForm';
 function AppContent() {
   const { user } = useContext(AuthContext);
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
+  const location = useLocation();
+  useEffect(() => {
+  const params = new URLSearchParams(location.search);
+  if (params.get("loginModal") === "open") {
+    setIsLoginModalOpen(true);
+    // Remove the query param from the URL
+    const newParams = new URLSearchParams(location.search);
+    newParams.delete("loginModal");
+    window.history.replaceState({}, '', `${location.pathname}?${newParams.toString()}`);
+  }
+  }, [location]);
+  
 // Συνάρτηση για το άνοιγμα και κλείσιμο του modal σύνδεσης
   // Χρησιμοποιείται για να εμφανίζει το modal σύνδεσης όταν ο χρήστης δεν είναι συνδεδεμένος
   // και να το κλείνει όταν ο χρήστης συνδεθεί ή ακυρώσει τη σύνδεση
@@ -39,6 +54,7 @@ function AppContent() {
   // π.χ. στο κύριο περιεχόμενο της εφαρμογής ή σε μια σελίδα προφίλ
   // Αν ο χρήστης είναι συνδεδεμένος, το modal δεν εμφανίζεται
   const handleLoginClose = () => setIsLoginModalOpen(false);
+  
 
   return (
     <>
@@ -84,6 +100,7 @@ function AppContent() {
 }
 
 function App() {
+
   return (
     <AuthProvider>
       <CartProvider>
