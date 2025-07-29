@@ -108,7 +108,7 @@ const AdminUsers = () => {
         <div>
           <label className="font-medium">📌 Κατάσταση:</label>
           <select
-            className="border border-gray-300 rounded px-3 py-1 mt-1"
+            className="border border-gray-300 rounded px-3 py-1 mt-1 bg-black"
             value={filteredStatus}
             onChange={(e) => setFilteredStatus(e.target.value)}
           >
@@ -133,7 +133,7 @@ const AdminUsers = () => {
               filteredSeller.map((seller) => (
                 <div
                   key={seller._id}
-                  className="bg-white shadow rounded p-4 border-l-4 border-blue-500 mb-4"
+                  className="bg-black shadow rounded p-4 border-l-4 border-blue-500 mb-4"
                 >
                   <p className="font-bold text-lg">{seller.username}</p>
                   <p className="text-sm text-gray-500">{seller.email}</p>
@@ -143,7 +143,7 @@ const AdminUsers = () => {
                   <p>📬 {seller.store?.email}</p>
 
                   <div className="mt-3 border-t pt-2 text-sm text-gray-700">
-                    <p>✅ Πωλήσεις: {seller.store?.stats?.totalPrice || 0}</p>
+                    <p>✅ Πωλήσεις: {seller.store?.stats?.totalSales || 0}</p>
                     <p>💰 Τζίρος: {seller.store?.stats?.totalRevenue || 0}€</p>
                     <p>📦 Εκκρεμείς: {seller.store?.stats?.totalPending || 0}</p>
                     <p>❌ Ακυρωμένες: {seller.store?.stats?.totalCanceled || 0}</p>
@@ -169,14 +169,16 @@ const AdminUsers = () => {
     filteredUsers.map((user) => (
       <div
         key={user._id}
-        className="bg-white shadow rounded p-4 border-l-4 border-green-500 mb-4"
+        className="bg-black shadow rounded p-4 border-l-4 border-green-500 mb-4"
       >
         <p className="font-bold text-lg">{user.username}</p>
         <p className="text-sm text-gray-500">{user.email}</p>
-        <p className="mt-2">📍 {user.region || '—'}</p>
-        <p>🏠 {user.street || '—'}</p>
-        <p>☎️ {user.phone || '—'}</p>
-        <p>🔔 {user.doorbell || '—'}</p>
+        <p className="mt-2">📍 {user?.userDetails?.region || '—'}</p>
+        <p>🏠 {user?.userDetails?.street || '—'}</p>
+        <p>☎️ {user?.userDetails?.postalCode || '—'}</p>
+        <p>🔔 {user?.userDetails?.doorbell || '—'}</p>
+        <p>🔔 {user?.userDetails?.phone || '—'}</p>
+
 
         <p className="text-xs text-gray-500 mt-3">
           🕒 Τελευταία Σύνδεση:{' '}

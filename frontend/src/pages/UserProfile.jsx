@@ -9,7 +9,16 @@ import ChangePasswordModal from '../components/ChangePasswordModal';
 // Εμφανίζει τα στοιχεία του χρήστη και επιτρέπει την επεξεργασία τους
 // Περιλαμβάνει φόρμα για ενημέρωση στοιχείων και modal για αλλαγή κωδικού      
 const UserProfile = () => {
-  const [userDetails, setUserDetails] = useState(null);
+  const [userDetails, setUserDetails] = useState({
+  firstName: '',
+  lastName: '',
+  street: '',
+  region: '',
+  postalCode: '',
+  phone: '',
+  floor: '',
+  doorbell: ''
+});
   const [originalDetails, setOriginalDetails] = useState(null);
   const [message, setMessage] = useState('');
   const [username, setUsername] = useState('');
@@ -42,7 +51,6 @@ const UserProfile = () => {
 );
       } catch (err) {
             console.error('❌ FULL FETCH ERROR:', err);
-            setMessage('Error loading user details: ' + (err.response?.data?.message || err.message));
       }
 
     };
@@ -99,28 +107,28 @@ const UserProfile = () => {
 
             <form onSubmit={handleSubmit} className="user-profile-form">
               <label>Όνομα:</label>
-              <input name="firstName" value={userDetails.firstName} onChange={handleChange} />
+              <input name="firstName" value={userDetails?.firstName || ''} onChange={handleChange} />
 
               <label>Επώνυμο:</label>
-              <input name="lastName" value={userDetails.lastName} onChange={handleChange} />
+              <input name="lastName" value={userDetails?.lastName || ''} onChange={handleChange} />
 
               <label>Οδός:</label>
-              <input name="street" value={userDetails.street} onChange={handleChange} />
+              <input name="street" value={userDetails?.street || ''} onChange={handleChange} />
 
               <label>Περιοχή:</label>
-              <input name="region" value={userDetails.region} onChange={handleChange} />
+              <input name="region" value={userDetails?.region || ''} onChange={handleChange} />
 
               <label>Τ.Κ.:</label>
-              <input name="postalCode" value={userDetails.postalCode} onChange={handleChange} />
+              <input name="postalCode" value={userDetails?.postalCode || ''} onChange={handleChange} />
 
               <label>Τηλέφωνο:</label>
-              <input name="phone" value={userDetails.phone} onChange={handleChange} />
+              <input name="phone" value={userDetails?.phone || ''} onChange={handleChange} />
 
               <label>Όροφος:</label>
-              <input name="floor" value={userDetails.floor} onChange={handleChange} />
+              <input name="floor" value={userDetails?.floor || ''} onChange={handleChange} />
 
               <label>Κουδούνι:</label>
-              <input name="doorbell" value={userDetails.doorbell} onChange={handleChange} />
+              <input name="doorbell" value={userDetails?.doorbell || ''} onChange={handleChange} />
 
               <button type="submit">Αποθήκευση</button>
             </form>
@@ -146,7 +154,7 @@ const UserProfile = () => {
             </div>
               {/* Ανάλογα με το ποιο modal είναι ανοιχτό, εμφανίζουμε το αντίστοιχο περιεχόμενο */}
             <div className="user-profile-modal-content">
-              {showDetailsModal && (
+              {userDetails && showDetailsModal && (
                 <UserDetailsModal
                   isOpen={true}
                   onClose={() => setShowDetailsModal(false)}
@@ -156,7 +164,7 @@ const UserProfile = () => {
                 />
               )}
                  {/* Modal για αλλαγή κωδικού */}
-              {showPasswordModal && (
+              {userDetails && showPasswordModal && (
                 <ChangePasswordModal
                   isOpen={true}
                   onClose={() => setShowPasswordModal(false)}

@@ -1,15 +1,18 @@
 //  frontend/src/components/UserDetailsModal.jsx
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './UserDetailsModal.css';
 import axios from '../utils/axiosInstance';
 
 const UserDetailsModal = ({ isOpen, onClose, userDetails, username, onUpdate }) => {
-  const [isEditing, setIsEditing] = useState(false);
-  const [editedDetails, setEditedDetails] = useState(userDetails);
-  const [message, setMessage] = useState('');
 
-  if (!isOpen) return null;
+  const [isEditing, setIsEditing] = useState(false);
+  const [editedDetails, setEditedDetails] = useState(userDetails || {});
+  const [message, setMessage] = useState('');
+  useEffect(() => {
+    setEditedDetails(userDetails || {});
+  }, [userDetails]);
+  if (!isOpen || !userDetails) return null;
 
   const handleChange = (e) => {
     setEditedDetails({ ...editedDetails, [e.target.name]: e.target.value });

@@ -1,13 +1,24 @@
 import User from '../models/User.js';
 import Store from '../models/Store.js';
 import Order from '../models/Order.js';
+import UserDetails from '../models/UserDetails.js';
 import { get } from 'mongoose';
 
 
 export const getAllUsers = async (req, res) => {
   try {
     const users = await User.find({}, '-password -__v') // παίρνουμε όλους χωρίς password/metadata
-    res.status(200).json({ users });
+    const userDetails = await UserDetails.find({});
+    console.log('📦 Απόκριση από getAllUsers:', users)
+    console.log('📦 Απόκριση από UserDetails:', userDetails);
+    const detailedUsers = users.map(user => {
+      const details = userDetails.find(detail => detail.user.toString() === user._id.toString());
+      return {
+        ...user.toObject(),
+        ...details ? details.toObject() : {}
+      };
+    });
+    res.status(200).json({ detailedUsers });
   } catch (error) {
     console.error('❌ Σφάλμα στο getAllUsers:', error);
     res.status(500).json({ error: 'Server error' });
@@ -99,17 +110,16 @@ export const getAllUsersDetailed = async (req, res) => {
     const detailedUsers = await Promise.all(
       users.map(async (user) => {
         if (user.role === 'customer') {
+          const userDetails = await UserDetails.findOne({user : user._id})
+          console.log("UserDetails",userDetails)
           return {
             _id: user._id,
             username: user.username,
             email: user.email,
             role: user.role,
-            customerRegion: user.customerRegion,
-            customerStreetAddress: user.customerStreetAddress,
-            customerFloor: user.customerFloor,
-            customerDoorbell: user.customerDoorbell,
-            customerMobilePhone: user.customerMobilePhone,
             createdAt: user.createdAt,
+            lastLogin: user.lastLogin,
+            userDetails: userDetails
           };
         }
 
@@ -117,12 +127,11 @@ export const getAllUsersDetailed = async (req, res) => {
           const store = await Store.findOne({ user: user._id });
 
           const orders = await Order.find({ store: store?._id });
-
-          const totalSales = orders.filter(o => o.status === 'delivered').length;
+          const totalSales = orders.filter(o => o.status === 'confirmed').length;
           const totalCanceled = orders.filter(o => o.status === 'declined').length;
           const totalPending = orders.filter(o => o.status === 'pending').length;
           const totalRevenue = orders.reduce((acc, cur) => {
-            if (cur.status === 'delivered') {
+            if (cur.status === 'confirmed') {
               acc += parseFloat(cur.totalPrice?.toString() || 0);
             }
             return acc;
@@ -149,6 +158,7 @@ export const getAllUsersDetailed = async (req, res) => {
               }
             },
             createdAt: user.createdAt,
+            lastLogin: user.lastLogin
           };
         }
 

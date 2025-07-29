@@ -8,7 +8,7 @@ import { getPlatformStats } from '../controllers/adminController.js';
 
 const router = express.Router();
 
-router.get('/users', protect, isAdmin, getAllUsers);
+router.get('/users', protect, isAdmin, getAllUsersDetailed);
 router.get('/stats', protect, isAdmin, getSystemStats);
 
 
