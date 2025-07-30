@@ -15,8 +15,84 @@ import sendDeclinedOrderEmailToCustomer from '../utils/sendDeclinedOrderEmailToC
 import { getOrderHistory } from '../controllers/orderController.js';
 import { getAllPendingOrders, getAllOrders } from '../controllers/adminOrderController.js';
 const router = express.Router();
+/**
+ * @swagger
+ * /admin/orders/pending:
+ *   get:
+ *     summary: Λήψη εκκρεμών παραγγελιών (Admin)
+ *     tags: [Admin Παραγγελίες]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Εκκρεμείς παραγγελίες
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/DetailedOrder'
+ */
 router.get('/admin/orders/pending', protect, isAdmin, getAllPendingOrders);
+
+/**
+ * @swagger
+ * /admin/orders/all:
+ *   get:
+ *     summary: Λήψη όλων των παραγγελιών (Admin)
+ *     tags: [Admin Παραγγελίες]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Όλες οι παραγγελίες
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/DetailedOrder'
+ */
 router.get('/admin/orders/all', protect, isAdmin, getAllOrders);
+/**
+ * @swagger
+ * /orders/complete:
+ *   post:
+ *     summary: Ολοκλήρωση παραγγελίας από πελάτη
+ *     tags: [Παραγγελίες]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [items]
+ *             properties:
+ *               items:
+ *                 type: array
+ *                 items:
+ *                   type: object
+ *                   properties:
+ *                     productId:
+ *                       type: string
+ *                       example: "64f1a2b1234567890abcd789"
+ *                     quantity:
+ *                       type: integer
+ *                       example: 2
+ *               comments:
+ *                 type: string
+ *                 example: "Παράδοση χωρίς κουδούνι"
+ *     responses:
+ *       200:
+ *         description: Η παραγγελία στάλθηκε στους συνεργάτες
+ *       400:
+ *         description: Το καλάθι είναι άδειο ή μη έγκυρα δεδομένα
+ *       401:
+ *         description: Μη εξουσιοδοτημένος
+ */
+
 //  Δημιουργία παραγγελίας από πελάτη
 router.post('/complete', protect, isCustomer ,completeOrder, async (req, res) => {
   try {
@@ -77,6 +153,25 @@ router.post('/complete', protect, isCustomer ,completeOrder, async (req, res) =>
     res.status(500).json({ message: 'Σφάλμα κατά την καταχώρηση παραγγελίας' });
   }
 });
+/**
+ * @swagger
+ * /orders:
+ *   get:
+ *     summary: Λήψη παραγγελιών πελάτη
+ *     tags: [Παραγγελίες]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Παραγγελίες πελάτη
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/DetailedOrder'
+ */
+
 //  Προβολή παραγγελιών του πελάτη ή του seller
 router.get('/', protect, async (req, res) => {
   try {
@@ -140,7 +235,40 @@ router.get('/', protect, async (req, res) => {
   }
 });
 
-
+/**
+ * @swagger
+ * /orders/confirm/{orderId}:
+ *   put:
+ *     summary: Επιβεβαίωση παραγγελίας από πωλητή
+ *     tags: [Παραγγελίες]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: orderId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Το ID της παραγγελίας
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [estimatedDeliveryTime]
+ *             properties:
+ *               estimatedDeliveryTime:
+ *                 type: string
+ *                 example: "30 λεπτά"
+ *     responses:
+ *       200:
+ *         description: Η παραγγελία επιβεβαιώθηκε και εστάλη στον πελάτη
+ *       403:
+ *         description: Δεν έχεις πρόσβαση σε αυτή την παραγγελία
+ *       404:
+ *         description: Η παραγγελία δεν βρέθηκε
+ */
 
 
 
@@ -187,6 +315,29 @@ router.put('/confirm/:orderId', protect, isSeller, confirmOrderBySeller,  async 
     res.status(500).json({ message: 'Σφάλμα κατά την επιβεβαίωση' });
   }
 });
+/**
+ * @swagger
+ * /orders/deny/{orderId}:
+ *   put:
+ *     summary: Απόρριψη παραγγελίας από πωλητή
+ *     tags: [Παραγγελίες]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: orderId
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Η παραγγελία απορρίφθηκε και ενημερώθηκε ο πελάτης
+ *       403:
+ *         description: Δεν έχεις πρόσβαση σε αυτή την παραγγελία
+ *       404:
+ *         description: Η παραγγελία δεν βρέθηκε
+ */
+
 // Άρνηση παραγγελίας από τον seller
 router.put('/deny/:orderId', protect, isSeller, denyOrderBySeller,  async (req, res) => {
   try {
@@ -226,6 +377,38 @@ router.put('/deny/:orderId', protect, isSeller, denyOrderBySeller,  async (req, 
     res.status(500).json({ message: 'Σφάλμα κατά την επιβεβαίωση' });
   }
 });
+
+/**
+ * @swagger
+ * /orders/seller:
+ *   get:
+ *     summary: Λήψη παραγγελιών του συνδεδεμένου πωλητή
+ *     tags: [Παραγγελίες]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: from
+ *         schema:
+ *           type: string
+ *           format: date
+ *         description: Ημερομηνία έναρξης
+ *       - in: query
+ *         name: to
+ *         schema:
+ *           type: string
+ *           format: date
+ *         description: Ημερομηνία λήξης
+ *     responses:
+ *       200:
+ *         description: Λίστα παραγγελιών του πωλητή
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/DetailedOrder'
+ */
 // Προβολή παραγγελιών του seller
 router.get('/seller', protect, getSellerOrders);
 
