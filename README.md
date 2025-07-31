@@ -50,11 +50,11 @@ The **E-Book Platform App** is a modern web platform where customers and sellers
 
 
 - Responsive UI with filters and dashboards
-- - Dynamic product listing with filters, pagination, and infinite scroll (mobile)
+   - Dynamic product listing with filters, pagination, and infinite scroll (mobile)
 - JWT-secured auth with automatic global logout on server restart  
 - Password reset via secure emailed link  
 - Role-based dashboards (Customer, Seller, Admin)
-- - Authenticated cart system with localStorage sync
+    - Authenticated cart system with localStorage sync
 - Communication form between customer and seller for order-related messaging  
 - Email notifications for order lifecycle events / order confirmation / password change / communication form/ Registration Confirmation  
 - Analytics: revenue, top sellers, regional breakdowns  
