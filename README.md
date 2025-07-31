@@ -35,7 +35,7 @@ The **E-Book Platform App** is a modern web platform where customers and sellers
 - Bulk import books via Excel or JSON
 - View and manage orders from customers
 - Accept orders and define delivery estimate
-- Stastics about Store financials / total orders etc.
+- Statistics for seller store more specific (financials / total orders/ Customer) etc.
 
 ### 3. Admin
 - Full platform oversight  
