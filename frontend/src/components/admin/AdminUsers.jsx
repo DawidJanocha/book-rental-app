@@ -87,13 +87,13 @@ const AdminUsers = () => {
 
   return (
     <div className="p-6">
-      <h2 className="text-2xl font-semibold mb-4">📋 Διαχείριση Χρηστών</h2>
+      <h2 className="text-2xl  font-semibold mb-4">📋 Διαχείριση Χρηστών</h2>
 
-      <div className="flex flex-col md:flex-row gap-4 mb-6">
+      <div className="flex bg-zinc-800 flex-col md:flex-row gap-4 mb-6">
         <div>
-          <label className="font-medium">📍 Φίλτρο Περιοχής:</label>
+          <label className="font-medium bg-zinc-800">📍 Φίλτρο Περιοχής:</label>
           <select
-            className="border border-gray-300 rounded px-3 py-1 mt-1"
+            className="border bg-zinc-800 border-gray-300 rounded px-3 py-1 mt-1"
             value={filteredRegion}
             onChange={(e) => setFilteredRegion(e.target.value)}
           >
@@ -108,7 +108,7 @@ const AdminUsers = () => {
         <div>
           <label className="font-medium">📌 Κατάσταση:</label>
           <select
-            className="border border-gray-300 rounded px-3 py-1 mt-1 bg-black"
+            className="border border-gray-300 rounded px-3 py-1 mt-1 bg-zinc-800"
             value={filteredStatus}
             onChange={(e) => setFilteredStatus(e.target.value)}
           >
@@ -123,7 +123,7 @@ const AdminUsers = () => {
       {loading ? (
         <p className="text-gray-500">⏳ Φόρτωση χρηστών...</p>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="bg-zinc-800 grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Συνεργάτες */}
           <div>
             <h3 className="text-xl font-semibold mb-2">🛍️ Συνεργάτες ({filteredSeller.length})</h3>
@@ -133,23 +133,23 @@ const AdminUsers = () => {
               filteredSeller.map((seller) => (
                 <div
                   key={seller._id}
-                  className="bg-black shadow rounded p-4 border-l-4 border-blue-500 mb-4"
+                  className="  shadow rounded p-4 border-1-4  border-blue-300 mb-4  pt-4 mt-4 border-t border-blue-300"
                 >
                   <p className="font-bold text-lg">{seller.username}</p>
-                  <p className="text-sm text-gray-500">{seller.email}</p>
+                  <p className="text-sm text-gray-100">{seller.email}</p>
                   <p className="mt-2">📍 {seller.store?.region}</p>
                   <p>🏪 {seller.store?.storeName}</p>
                   <p>📞 {seller.store?.phone}</p>
                   <p>📬 {seller.store?.email}</p>
 
-                  <div className="mt-3 border-t pt-2 text-sm text-gray-700">
+                  <div className="mt-3 border-t pt-2 text-sm text-gray-100">
                     <p>✅ Πωλήσεις: {seller.store?.stats?.totalSales || 0}</p>
                     <p>💰 Τζίρος: {seller.store?.stats?.totalRevenue || 0}€</p>
                     <p>📦 Εκκρεμείς: {seller.store?.stats?.totalPending || 0}</p>
                     <p>❌ Ακυρωμένες: {seller.store?.stats?.totalCanceled || 0}</p>
                   </div>
 
-                  <p className="text-xs text-gray-500 mt-3">
+                  <p className="text-xs text-gray-300 mt-3">
                     🕒 Τελευταία Σύνδεση:{' '}
                     {seller.lastLogin
                       ? new Date(seller.lastLogin).toLocaleString('el-GR')
@@ -169,10 +169,10 @@ const AdminUsers = () => {
     filteredUsers.map((user) => (
       <div
         key={user._id}
-        className="bg-black shadow rounded p-4 border-l-4 border-green-500 mb-4"
+        className="shadow rounded p-4 border-1-4  border-blue-300 mb-4  pt-4 mt-4 border-t border-blue-300"
       >
         <p className="font-bold text-lg">{user.username}</p>
-        <p className="text-sm text-gray-500">{user.email}</p>
+        <p className="text-sm text-gray-100">{user.email}</p>
         <p className="mt-2">📍 {user?.userDetails?.region || '—'}</p>
         <p>🏠 {user?.userDetails?.street || '—'}</p>
         <p>☎️ {user?.userDetails?.postalCode || '—'}</p>
@@ -180,7 +180,7 @@ const AdminUsers = () => {
         <p>🔔 {user?.userDetails?.phone || '—'}</p>
 
 
-        <p className="text-xs text-gray-500 mt-3">
+        <p className="text-xs text-gray-300 mt-3">
           🕒 Τελευταία Σύνδεση:{' '}
           {user.lastLogin
             ? new Date(user.lastLogin).toLocaleString('el-GR')
