@@ -35,7 +35,7 @@ const AdminStats = () => {
   }, [region, from, to]);
 
   return (
-    <div className="p-6 bg-white rounded-lg shadow-md">
+    <div className="p-6  rounded-lg shadow-md">
       {/* Header */}
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-3xl font-semibold">📈 Στατιστικά Πλατφόρμας</h2>
@@ -46,9 +46,9 @@ const AdminStats = () => {
       </div>
 
       {/* Filters */}
-      <div className="flex flex-wrap items-center gap-4 mb-6">
+      <div className="flex flex-wrap items-center text-gray-500 gap-4 mb-6">
         <select
-          className="border border-gray-300 rounded px-4 py-2"
+          className="border border-gray-300 text-gray-500 rounded px-4 py-2"
           value={region}
           onChange={(e) => setRegion(e.target.value)}
         >
@@ -75,18 +75,18 @@ const AdminStats = () => {
 
       {/* Table */}
       <div className="overflow-x-auto">
-        <table className="min-w-full bg-white border border-gray-300">
+        <table className="min-w-full  border border-gray-300">
           <thead>
             <tr className="bg-gray-100">
-              <th className="px-4 py-2 border-b text-left">Κατάστημα</th>
-              <th className="px-4 py-2 border-b text-left">Νομός</th>
-              <th className="px-4 py-2 border-b text-left">Έσοδα (€)</th>
-              <th className="px-4 py-2 border-b text-left">Κέρδος Πλατφόρμας (€)</th>
+              <th className="px-4 py-2 border-b text-gray-500 text-left">Κατάστημα</th>
+              <th className="px-4 py-2 border-b text-gray-500 text-left">Νομός</th>
+              <th className="px-4 py-2 border-b text-gray-500 text-left">Έσοδα (€)</th>
+              <th className="px-4 py-2 border-b text-gray-500 text-left">Κέρδος Πλατφόρμας (€)</th>
             </tr>
           </thead>
           <tbody>
             {stats?.stores?.map((store) => (
-              <tr key={store.storeId} className="hover:bg-gray-50">
+              <tr key={store.storeId} className="hover:bg-gray-700">
                 <td className="px-4 py-2 border-b">{store.storeName}</td>
                 <td className="px-4 py-2 border-b">{store.region}</td>
                 <td className="px-4 py-2 border-b">€{store.totalIncome.toFixed(2)}</td>
