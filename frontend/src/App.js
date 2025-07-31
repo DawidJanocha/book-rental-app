@@ -21,6 +21,8 @@ import LoginModal from './components/LoginModal';
 import AdminDashboard from './pages/AdminDashboard';
 import ContactForm from './pages/ContactForm';
 import { useLocation } from "react-router-dom";
+import PasswordResend from './pages/PasswordResend';
+import PasswordReset from './pages/PasswordReset'; // αν έχεις σελίδα reset
 
 
 
@@ -76,6 +78,9 @@ function AppContent() {
         <Route path="/store/:storeId" element={<StoreDetails />} />  {/* // Σελίδα προβολής καταστήματος με βάση το storeId*/}
         <Route path="/contact" element={<ContactForm />} /> {/* // Σελίδα επικοινωνίας για αποστολή μηνυμάτων ή ερωτήσεων*/}    
         <Route path="/admin-dashboard" element={<AdminDashboard />} />
+         <Route path="/password-resend" element={<PasswordResend />} />
+        <Route path="/password-reset" element={<PasswordReset />} />
+
           <Route
           path="/order-history"
           element={

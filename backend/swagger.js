@@ -7,7 +7,7 @@ const options = {
   definition: {
     openapi: '3.0.0',
     info: {
-      title: '📚 E-Book Rental API',
+      title: '📚 E-Book platform API',
       version: '1.0.0',
       description: 'API τεκμηρίωση για την πλατφόρμα ενοικίασης βιβλίων. Περιλαμβάνει endpoints για χρήστες, βιβλία, παραγγελίες, καταστήματα, στατιστικά και λειτουργίες διαχειριστή.',
     },

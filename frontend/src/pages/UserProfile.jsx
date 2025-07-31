@@ -151,6 +151,9 @@ const UserProfile = () => {
               }}>
                 Αλλαγή Κωδικού
               </button>
+
+            
+            
             </div>
               {/* Ανάλογα με το ποιο modal είναι ανοιχτό, εμφανίζουμε το αντίστοιχο περιεχόμενο */}
             <div className="user-profile-modal-content">

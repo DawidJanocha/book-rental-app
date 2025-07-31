@@ -1,7 +1,7 @@
 // src/components/LoginModal.jsx
 import React, { useState, useContext } from 'react';
 import axios from '../utils/axiosInstance';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 
 function LoginModal({ onClose }) {
@@ -117,12 +117,20 @@ function LoginModal({ onClose }) {
 
         <div className="flex flex-col items-center mt-6 gap-2">
           {!isRegister && (
-            <div className="mt-2 text-center">
-              <a href="#" className="text-sm text-blue-400 hover:underline">
-                Ξέχασες τον κωδικό σου;
-              </a>
-            </div>
-          )}
+  <div className="mt-2 text-center">
+  <a href="#" className="text-sm text-blue-400 hover:underline">
+    {/* Ξέχασες τον κωδικό σου; */}
+  </a>
+  <Link
+    to="/password-resend"
+    onClick={onClose}
+    className="text-sm text-blue-400 hover:underline"
+   >
+    Ξέχασες τον κωδικό σου;
+   </Link>
+  </div>
+)}
+
           <button
             onClick={() => setIsRegister(!isRegister)}
             className="text-blue-400 hover:underline text-sm"

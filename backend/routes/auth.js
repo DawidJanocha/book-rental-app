@@ -1,6 +1,6 @@
 // routes/auth.js
 import express from 'express';
-import { register, login, verifyEmail, getProfile } from '../controllers/authController.js';
+import { register, login, verifyEmail, getProfile, passwordResend, resetPassword } from '../controllers/authController.js';
 const router = express.Router();
 import { protect } from '../middleware/authMiddleware.js';
 import User from '../models/User.js';
@@ -165,6 +165,62 @@ router.get('/profile', protect, getProfile);
 // Route για login
 router.post('/login', login);
 
+
+
+
+/**
+ * @swagger
+ * /auth/password-resend:
+ *   post:
+ *     summary: Αίτημα επαναφοράς κωδικού - Αποστολή email με σύνδεσμο επαναφοράς
+ *     tags: [Αυθεντικοποίηση]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [email]
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 format: email
+ *                 example: user@example.com
+ *     responses:
+ *       200:
+ *         description: Email με σύνδεσμο επαναφοράς στάλθηκε (ή αποτυχημένης ύπαρξης email)
+ */
+router.post('/passwordResend', passwordResend);
+
+
+/**
+ * @swagger
+ * /auth/password-reset:
+ *   post:
+ *     summary: Οριστική επαναφορά κωδικού
+ *     tags: [Αυθεντικοποίηση]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [token, newPassword]
+ *             properties:
+ *               token:
+ *                 type: string
+ *               newPassword:
+ *                 type: string
+ *                 example: newStrongPassword123
+ *     responses:
+ *       200:
+ *         description: Κωδικός ενημερώθηκε επιτυχώς
+ *       400:
+ *         description: Missing data, invalid or expired token
+ */
+router.post('/resetPassword', resetPassword);
+
+
 /**
  * @swagger
  * /auth/test:
@@ -177,6 +233,13 @@ router.post('/login', login);
  */
 router.get('/test', (req, res) => {
   res.send('✅ API OK from book rental!');
+
+
+
+
+
+
+
 });
 
 export default router;
