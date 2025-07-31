@@ -25,7 +25,7 @@ The **E-Book Platform App** is a modern web platform where customers and sellers
 
 ### 1. Customer
 - Register with full address and contact info
-- Browse and rent books
+- Browse and buy books
 - View order history
 - Receive confirmation emails when orders are accepted
 
