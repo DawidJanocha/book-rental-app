@@ -29,12 +29,13 @@ The **E-Book Platform App** is a modern web platform where customers and sellers
 - View order history
 - Receive confirmation emails when orders are accepted
 
-### 2. Partner
+### 2. Seller
 - Register with or without a store
 - Add/edit/delete books from their store
 - Bulk import books via Excel or JSON
 - View and manage orders from customers
 - Accept orders and define delivery estimate
+- Stastics about Store financials / total orders etc.
 
 ### 3. Admin
 - Full platform oversight  
