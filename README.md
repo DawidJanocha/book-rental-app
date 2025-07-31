@@ -3,9 +3,9 @@ Created by Dawid Janocha
 
 ---
 
-# 📚 Book Rental App
+# 📚 E-Book Platform App
 
-The **Book Rental App** is a modern web platform that allows users to browse, rent, and manage books online. Designed for seamless collaboration between bookstores (partners) and customers, the application offers a complete order and inventory management system, sales statistics, and real-time email notifications.
+The **E-Book Platform App** is a modern web platform where customers and sellers communicate and transact around books. It supports browsing, ordering, dashboard analytics, role-based access, secure authentication, real-time notifications, and admin oversight.
 
 ---
 
@@ -36,20 +36,27 @@ The **Book Rental App** is a modern web platform that allows users to browse, re
 - View and manage orders from customers
 - Accept orders and define delivery estimate
 
+### 3. Admin
+- Full platform oversight  
+- View aggregate and per-store statistics  
+- Manage users (customers, sellers)  
+- Monitor orders and disputes  
+- Access and audit communication logs  
+
 ---
 
 ## 🧩 Core Features
 
-- Fully responsive UI
-- Dynamic product listing with filters, pagination, and infinite scroll (mobile)
-- Authenticated cart system with localStorage sync
-- Store management (creation, editing, region selection, contact info)
-- Partner dashboard with:
-  - Product management
-  - Sales statistics (revenue, total orders, top sellers)
-  - Order confirmation & notification system
-  - Duplicate product detection & removal
-- Email templates for order notifications (customer, partner, admin)
+
+- Responsive UI with filters and dashboards
+- - Dynamic product listing with filters, pagination, and infinite scroll (mobile)
+- JWT-secured auth with automatic global logout on server restart  
+- Password reset via secure emailed link  
+- Role-based dashboards (Customer, Seller, Admin)
+- - Authenticated cart system with localStorage sync
+- Communication form between customer and seller for order-related messaging  
+- Email notifications for order lifecycle events / order confirmation / password change / communication form/ Registration Confirmation  
+- Analytics: revenue, top sellers, regional breakdowns  
 - JWT-secured backend with role-based authorization
 
 ---
@@ -57,8 +64,8 @@ The **Book Rental App** is a modern web platform that allows users to browse, re
 ## 🔄 Order Flow
 
 1. Customer adds books to cart and completes order
-2. Partner receives email with order details
-3. Partner accepts the order and sets delivery estimate (15m–1h)
+2. Seller/'s receives email with order details
+3. Seller/'s accepts the order and sets estimated time of  collection (15m–3h)
 4. Customer receives confirmation email with order summary and estimated time
 
 ---
@@ -86,10 +93,9 @@ The **Book Rental App** is a modern web platform that allows users to browse, re
 ## 🔐 Authentication
 
 - Modal-based login/register system (no redirects)
-- Customer registration includes:
+- Customer after registration includes:
   - Phone number, region, floor, doorbell, full address
-- Partner registration includes:
-  - Option to create a store on signup
+- Seller after registration includes store MongoDb Creation :
   - Full store info (name, VAT, address, region, phone, email)
 - Role-based logic with redirect routing post-login
 
@@ -111,9 +117,12 @@ The **Book Rental App** is a modern web platform that allows users to browse, re
 ## 📩 Email System
 
 - Triggered on:
-  - Order completion (sent to partner)
-  - Order acceptance (sent to customer)
-- Custom HTML templates
+  - User (Customer/Seller) Registration (confirmation  Email)
+  - Order completion (sent to customer)
+  - Order acceptance (sent to seller)
+  - Contact-form
+  - Reset Password
+- Custom HTML templates on every event
 - Displays: order items, prices, total, delivery info
 
 ---
@@ -122,7 +131,7 @@ The **Book Rental App** is a modern web platform that allows users to browse, re
 
 ```bash
 # Clone the repository
-git clone https://github.com/your-username/book-rental-app.git
+git clone https://github.com/your-username/eBooks-App.git
 
 # Install dependencies
 cd backend && npm install
@@ -140,17 +149,13 @@ To start the server you need to
 ## 🧪 Testing
 
 - Manual testing with Postman and browser
-- Unit testing (Jest) in progress for:
-  - Order routes
-  - Auth controller
-  - Partner dashboard endpoints
 
 ---
 
 ## 🛡️ Security
 
 - Protected routes using JWT and role checks
-- Partner-only access to dashboard, product & order management
+- Seller-only access to seller Dashboard (Edit & Add & Delete -> product, Tab for (accpet or decline order), store Statistics)
 - Email verification required on registration
 
 ---
