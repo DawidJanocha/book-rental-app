@@ -141,7 +141,9 @@ cd ../frontend && npm install
 cd backend && npm run dev
 cd ../frontend && npm start
 
-To start the server you need to 
+To start the server you need to
+npm run dev in the Final Project 
+*npm run dev runs backend and frontend with 1 command 
 ```
 
 ---
